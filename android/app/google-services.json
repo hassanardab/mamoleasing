@@ -1,0 +1,82 @@
+{
+  "project_info": {
+    "project_number": "148665146396",
+    "project_id": "nas-shop",
+    "storage_bucket": "nas-shop.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:148665146396:android:aaa421d771d8023ba293d9",
+        "android_client_info": {
+          "package_name": "com.example.myapp"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "148665146396-6e7m2l4uia0q09csp6sb2ltrsgval4mc.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyB3g-sxqru3AUpU7XwHM6EBM4FNqpTuUrw"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "148665146396-6e7m2l4uia0q09csp6sb2ltrsgval4mc.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "148665146396-a2r621ol53me3t6lfjucgnqb200rv5q6.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.nasShop"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:148665146396:android:01692cb2b5002f46a293d9",
+        "android_client_info": {
+          "package_name": "com.example.nas_shop"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "148665146396-6e7m2l4uia0q09csp6sb2ltrsgval4mc.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyB3g-sxqru3AUpU7XwHM6EBM4FNqpTuUrw"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "148665146396-6e7m2l4uia0q09csp6sb2ltrsgval4mc.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "148665146396-a2r621ol53me3t6lfjucgnqb200rv5q6.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.nasShop"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
