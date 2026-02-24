@@ -1,7 +1,7 @@
-
 import 'package:flutter/material.dart';
 import '../models/vehicle.dart';
 import '../screens/vehicle_details_screen.dart';
+import '../screens/create_agreement_screen.dart';
 
 class VehicleListItem extends StatelessWidget {
   final Vehicle vehicle;
@@ -14,8 +14,23 @@ class VehicleListItem extends StatelessWidget {
       margin: const EdgeInsets.all(8.0),
       child: ListTile(
         title: Text('${vehicle.make} ${vehicle.model}'),
-        subtitle: Text('Year: ${vehicle.year}'),
-        trailing: const Icon(Icons.arrow_forward_ios),
+        subtitle: Text('Year: ${vehicle.year} | Status: ${vehicle.status}'),
+        trailing: vehicle.status == 'Available'
+            ? ElevatedButton(
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => CreateAgreementScreen(vehicle: vehicle),
+                    ),
+                  );
+                },
+                child: const Text('Create Agreement'),
+              )
+            : ElevatedButton(
+                onPressed: null,
+                child: const Text('Rented'),
+              ),
         onTap: () {
           Navigator.push(
             context,

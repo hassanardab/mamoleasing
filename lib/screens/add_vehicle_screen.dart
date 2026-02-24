@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:firebase_ai/firebase_ai.dart';
-import '../models/vehicle.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:provider/provider.dart';
+
+import '../providers/app_provider.dart';
 
 class AddVehicleScreen extends StatefulWidget {
   const AddVehicleScreen({super.key});
@@ -17,53 +19,55 @@ class _AddVehicleScreenState extends State<AddVehicleScreen> {
   bool _isLoading = false;
   final _descriptionController = TextEditingController();
 
-  Future<void> _generateDescription() async {
+  Future<void> _saveVehicle() async {
     if (_formKey.currentState!.validate()) {
       _formKey.currentState!.save();
-
       setState(() {
         _isLoading = true;
       });
 
-      try {
-        //     final model = FirebaseAI.instance.backend(GenerativeBackend.googleAI())
-        // .generativeModel(model: 'gemini-2.5-flash-lite');
-        //     final prompt =
-        //         'Write a short, engaging description for a rental listing of a $_year $_make $_model.';
+      final appProvider = Provider.of<AppProvider>(context, listen: false);
+      final companyId = appProvider.selectedCompany?.id;
 
-        //     final response = await model.generateContent([Content.text(prompt)]);
-
-        setState(() {
-          // _descriptionController.text = response.text ?? 'Error generating description.';
-        });
-      } catch (e) {
-        // Handle error
-        setState(() {
-          _descriptionController.text = 'Error: ${e.toString()}';
-        });
-      } finally {
+      if (companyId == null) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('No company selected!')),
+        );
         setState(() {
           _isLoading = false;
         });
+        return;
+      }
+
+      try {
+        await FirebaseFirestore.instance
+            .collection('companies')
+            .doc(companyId)
+            .collection('vehicles')
+            .add({
+          'make': _make,
+          'model': _model,
+          'year': _year,
+          'description': _descriptionController.text,
+          'status': 'Available',
+          'preRentalImages': [],
+        });
+
+        if (mounted) {
+          Navigator.pop(context);
+        }
+      } catch (e) {
+        setState(() {
+          _isLoading = false;
+        });
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Failed to save vehicle: $e')),
+        );
       }
     }
   }
 
-  void _saveVehicle() {
-    if (_formKey.currentState!.validate()) {
-      _formKey.currentState!.save();
-      final newVehicle = Vehicle(
-        id: DateTime.now().toString(), // Simple unique ID
-        make: _make,
-        model: _model,
-        year: _year,
-        description: _descriptionController.text,
-      );
-      Navigator.pop(context, newVehicle);
-    }
-  }
-
-  @override
+ @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const Text('Add Vehicle')),
@@ -117,11 +121,6 @@ class _AddVehicleScreenState extends State<AddVehicleScreen> {
                       },
                     ),
                     const SizedBox(height: 20),
-                    ElevatedButton(
-                      onPressed: _isLoading ? null : _generateDescription,
-                      child: const Text('Generate Description (AI)'),
-                    ),
-                    const SizedBox(height: 20),
                     TextFormField(
                       controller: _descriptionController,
                       decoration: const InputDecoration(
@@ -131,7 +130,7 @@ class _AddVehicleScreenState extends State<AddVehicleScreen> {
                     ),
                     const SizedBox(height: 20),
                     ElevatedButton(
-                      onPressed: _saveVehicle,
+                      onPressed: _isLoading ? null : _saveVehicle,
                       child: const Text('Save Vehicle'),
                     ),
                   ],

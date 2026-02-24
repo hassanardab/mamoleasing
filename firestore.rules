@@ -1,0 +1,112 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // =========================
+    // Helper functions
+    // =========================
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    function isOwner(userId) {
+      return isAuthenticated() && request.auth.uid == userId;
+    }
+
+    // Super Admin check using specific email
+    function isSuperAdmin() {
+      return isAuthenticated() && request.auth.token.email == "ardab.hassan@gmail.com";
+    }
+
+    function getUserData() {
+      return get(/databases/$(database)/documents/users/$(request.auth.uid)).data;
+    }
+
+    function getCompanyData(companyId) {
+      return get(/databases/$(database)/documents/companies/$(companyId)).data;
+    }
+
+    function isCompanyOwner(companyId) {
+      return isAuthenticated() &&
+             getCompanyData(companyId).ownerId == request.auth.uid;
+    }
+
+    function isCompanyMember(companyId) {
+      return isAuthenticated() &&
+        (
+          getUserData().companyIds.hasAny([companyId]) ||
+          isCompanyOwner(companyId)
+        );
+    }
+
+    // =========================
+    // Collection Group Queries
+    // =========================
+    match /{path=**}/payments/{paymentId} {
+      allow read: if isCompanyMember(resource.data.companyId) || isSuperAdmin();
+    }
+
+    // =========================
+    // Users
+    // =========================
+    match /users/{userId} {
+      allow read: if isOwner(userId) || isSuperAdmin();
+      allow write: if isOwner(userId) || isSuperAdmin();
+    }
+
+    // =========================
+    // Companies
+    // =========================
+    match /companies/{companyId} {
+      allow read: if isCompanyMember(companyId) || isSuperAdmin();
+      allow create: if isAuthenticated();
+      allow update, delete: if isCompanyOwner(companyId) || isSuperAdmin();
+
+      // Tasks
+      match /tasks/{taskId} {
+        allow read, create, update, delete: if isCompanyMember(companyId) || isSuperAdmin();
+      }
+
+      // Members
+      match /members/{memberId} {
+        allow read, create: if isCompanyMember(companyId) || isSuperAdmin();
+        allow update, delete: if isCompanyOwner(companyId) || isSuperAdmin();
+
+        allow update: if resource.data.status == 'pending' &&
+                       request.resource.data.status == 'active' &&
+                       request.resource.data.userId == request.auth.uid;
+      }
+      
+      // Accounting
+      match /accounts/{accountId} {
+        allow read, create, update, delete: if isCompanyMember(companyId) || isSuperAdmin();
+      }
+
+      match /journalEntries/{journalEntryId} {
+        allow read, create, update, delete: if isCompanyMember(companyId) || isSuperAdmin();
+      }
+
+      // Vehicles (Adding these as they are core to our current app)
+      match /vehicles/{vehicleId} {
+        allow read, create, update, delete: if isCompanyMember(companyId) || isSuperAdmin();
+      }
+
+      // Agreements
+      match /agreements/{agreementId} {
+        allow read, create, update, delete: if isCompanyMember(companyId) || isSuperAdmin();
+      }
+
+      // Clients
+      match /clients/{clientId} {
+        allow read, create, update, delete: if isCompanyMember(companyId) || isSuperAdmin();
+      }
+
+      // ... other sub-collections ...
+    }
+    
+    // Fallback for any other collections
+    match /{document=**} {
+      allow read, write: if isSuperAdmin();
+    }
+  }
+}

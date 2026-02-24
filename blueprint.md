@@ -1,25 +1,43 @@
-# App Blueprint
+## **App Overview**
+This is a Flutter application for managing a vehicle rental business. It allows users to manage their vehicle inventory, clients, and rental agreements.
 
-## Overview
+## **Features**
 
-A comprehensive vehicle rental management application designed to streamline the entire rental process, from inventory management to final invoicing. The app incorporates AI-powered tools for damage assessment, data extraction, and content generation, aiming to improve efficiency and accuracy.
+*   **Authentication**: Users can sign up and log in using Firebase Authentication.
+*   **Multi-Company Support**: The application supports multiple companies, with each user having access to a specific set of companies.
+*   **Vehicle Inventory Management**: Users can add, view, and manage their vehicle inventory.
+*   **Client Management**: Users can add and view their clients.
+*   **Rental Agreements**: Users can view their rental agreements.
 
-## Features
+## **Architecture**
 
-*   **Vehicle Inventory**: Add new vehicles to the inventory, including details like make, model, and year. The app provides a clear list of all vehicles.
-*   **AI-Generated Vehicle Descriptions**: When adding a new vehicle, the app can automatically generate an engaging rental description using a generative AI model (Gemini).
-*   **Vehicle Details Screen**: View detailed information about each vehicle, including the AI-generated description and a placeholder for an image carousel.
-*   **Rental Booking & Tracking**: Manage rental agreements by recording client details, rental duration, agreed pricing, and automate tracking of active rentals. Provides an overview of current and upcoming bookings.
-*   **Post-Rental Mileage & Surcharge Calculation**: A dedicated form for entering post-rental mileage. The system automatically calculates if the agreed-upon mileage limit has been exceeded and determines any applicable surcharges.
-*   **AI-Powered Visual Damage Assessment Tool**: Allow users to upload new images of the vehicle after rental. An AI-powered tool will analyze these images by comparing them against the initial pre-rental images to detect potential new damages or discrepancies also allow the user take pictures for car dashboard and clients driver license and then extract information from them for better and faster way to extract info.
-*   **Invoice Generation & Sharing**: Generate professional invoices based on rental agreements, mileage surcharges, and any detected damages. Users can print or securely share invoices with clients digitally.
-*   **Notification & Reminder System**: Send automated in-app notifications or email reminders to users regarding upcoming rental returns, status updates, or actions required for a seamless management process.
-*   **Basic Transaction Logging**: Upon payment confirmation, the application will record essential rental transactions, forming a foundational ledger for financial overview.
+*   **State Management**: The application uses the `provider` package for state management. A centralized `AppProvider` manages the application's state, including authentication, user data, and the selected company.
+*   **Routing**: The application uses the `go_router` package for routing. The router listens to the `AppProvider` for authentication changes and redirects users accordingly. The router has a dedicated `/splash` route to handle the initial loading state and prevent redirect loops.
+*   **Backend**: The application uses Firebase for its backend, including Firebase Authentication and Cloud Firestore for the database.
 
-## Design & Style
+## **Security**
+*   **Firestore Rules**: The application uses a multi-tenant security model. Data access is restricted to authenticated users who are members or owners of a specific company. A super admin has global access to all data.
 
-*   **Layout**: Adopt a responsive, dashboard-style layout with clear information hierarchy. Panels and cards should organize data logically, ensuring usability on various screen sizes.
-*   **Color**: A `primarySwatch` of `Colors.blue` is used for the main theme.
-*   **Typography**: Body and headline font: 'Inter' (sans-serif) for its modern, clear, and objective readability across all textual content, ideal for a management application.
-*   **Iconography**: Utilize a consistent set of clean, outline-style icons to maintain a professional and uncluttered aesthetic throughout the application, enhancing navigability.
-*   **Animation**: Incorporate subtle and swift transitions for actions such as form submissions, status updates, and view changes, providing clear feedback without distracting the user.
+## **File Structure**
+
+```
+lib/
+|-- models/
+|   |-- agreement.dart
+|   |-- client.dart
+|   |-- vehicle.dart
+|-- providers/
+|   |-- app_provider.dart
+|-- screens/
+|   |-- add_vehicle_screen.dart
+|   |-- agreement_details_screen.dart
+|   |-- agreements_screen.dart
+|   |-- login_screen.dart
+|   |-- manage_clients_screen.dart
+|   |-- splash_screen.dart
+|   |-- vehicle_inventory_screen.dart
+|-- widgets/
+|   |-- vehicle_list_item.dart
+|-- main.dart
+|-- router.dart
+```
