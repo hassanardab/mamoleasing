@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
 import '../../models/booking_event.dart';
+import '../booking/add_event_dialog.dart';
 
 class EventDetailsScreen extends StatelessWidget {
   final BookingEvent event;
@@ -17,11 +18,9 @@ class EventDetailsScreen extends StatelessWidget {
           IconButton(
             icon: const Icon(Icons.edit),
             onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => AddEditBookingDialog(event: event),
-                ),
+              showDialog(
+                context: context,
+                builder: (context) => AddEventDialog(event: event),
               );
             },
           ),

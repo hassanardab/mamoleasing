@@ -33,11 +33,10 @@ class _CreateAgreementScreenState extends State<CreateAgreementScreen> {
       });
 
       try {
-        // Create agreement
         final agreement = Agreement(
-          id: '', // Firestore will generate
-          vehicleId: widget.vehicle.id,
-          clientId: _selectedClient!.id,
+          id: '', 
+          vehicleId: widget.vehicle.id!,
+          clientId: _selectedClient!.id!,
           startDate: _startDate,
           endDate: _endDate,
           terms: _termsController.text,
@@ -49,20 +48,23 @@ class _CreateAgreementScreenState extends State<CreateAgreementScreen> {
 
         await FirebaseFirestore.instance.collection('agreements').add(agreement.toFirestore());
 
-        // Update vehicle status
         await FirebaseFirestore.instance
             .collection('vehicles')
             .doc(widget.vehicle.id)
             .update({'status': 'Rented'});
 
-        Navigator.pop(context);
+        if (mounted) {
+          Navigator.pop(context);
+        }
       } catch (e) {
-        setState(() {
-          _isLoading = false;
-        });
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Failed to save agreement: $e')),
-        );
+        if (mounted) {
+          setState(() {
+            _isLoading = false;
+          });
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Failed to save agreement: $e')),
+          );
+        }
       }
     }
   }
@@ -118,7 +120,7 @@ class _CreateAgreementScreenState extends State<CreateAgreementScreen> {
           ),
           if (_isLoading)
             Container(
-              color: Colors.black.withOpacity(0.5),
+              color: Colors.black.withAlpha(128),
               child: const Center(child: CircularProgressIndicator()),
             ),
         ],
@@ -181,8 +183,8 @@ class _CreateAgreementScreenState extends State<CreateAgreementScreen> {
     final picked = await showDatePicker(
       context: context,
       initialDate: isStart ? _startDate : _endDate,
-      firstDate: DateTime(2020), // Earlier date
-      lastDate: DateTime(2030), // Future date
+      firstDate: DateTime(2020),
+      lastDate: DateTime(2030),
     );
     if (picked != null) {
       setState(() {

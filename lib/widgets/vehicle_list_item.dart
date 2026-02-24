@@ -34,9 +34,9 @@ class VehicleListItem extends StatelessWidget {
                 },
                 child: const Text('Create Agreement'),
               )
-            : ElevatedButton(
+            : const ElevatedButton(
                 onPressed: null,
-                child: const Text('Rented'),
+                child: Text('Rented'),
               ),
         onTap: () {
           Navigator.push(

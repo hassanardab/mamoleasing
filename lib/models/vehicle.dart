@@ -1,5 +1,5 @@
 class Vehicle {
-  final String id;
+  final String? id;
   final String make;
   final String model;
   final int year;
@@ -9,7 +9,7 @@ class Vehicle {
   final List<String> preRentalImages;
 
   Vehicle({
-    required this.id,
+    this.id,
     required this.make,
     required this.model,
     required this.year,

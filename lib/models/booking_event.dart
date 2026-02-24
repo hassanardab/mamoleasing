@@ -3,7 +3,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 enum BookingStatus { confirmed, postponed, pending, partiallyPaid, cancelled }
 
 class BookingEvent {
-  final String id;
+  final String? id;
   final String title;
   final String customerName;
   final String? customerEmail;
@@ -27,7 +27,7 @@ class BookingEvent {
   final double? baseCurrencyAmount;
 
   BookingEvent({
-    required this.id,
+    this.id,
     required this.title,
     required this.customerName,
     this.customerEmail,
@@ -51,32 +51,38 @@ class BookingEvent {
     this.baseCurrencyAmount,
   });
 
-  factory BookingEvent.fromFirestore(Map<String, dynamic> data, String id) {
+ factory BookingEvent.fromFirestore(Map<String, dynamic> data, String id) {
+    // Helper to safely parse timestamps
+    DateTime parseDate(Timestamp? timestamp) {
+        return timestamp?.toDate() ?? DateTime.now();
+    }
+
     return BookingEvent(
-      id: id,
-      title: data['title'] ?? '',
-      customerName: data['customerName'] ?? '',
-      customerEmail: data['customerEmail'],
-      customerPhone: data['customerPhone'],
-      customerPhones: data['customerPhones'] != null ? List<String>.from(data['customerPhones']) : null,
-      startDate: (data['startDate'] as Timestamp).toDate(),
-      endDate: (data['endDate'] as Timestamp).toDate(),
-      amount: (data['amount'] ?? 0).toDouble(),
-      balance: (data['balance'] ?? 0).toDouble(),
-      paidAmount: (data['paidAmount'] ?? 0).toDouble(),
-      currency: data['currency'] ?? 'USD',
-      status: _parseStatus(data['status']),
-      place: data['place'],
-      notes: data['notes'],
-      description: data['description'],
-      createdAt: (data['createdAt'] as Timestamp).toDate(),
-      updatedAt: (data['updatedAt'] as Timestamp).toDate(),
-      clientId: data['clientId'],
-      placeId: data['placeId'],
-      source: data['source'],
-      baseCurrencyAmount: (data['baseCurrencyAmount'] ?? 0).toDouble(),
+        id: id,
+        title: data['title'] as String? ?? '',
+        customerName: data['customerName'] as String? ?? '',
+        customerEmail: data['customerEmail'] as String?,
+        customerPhone: data['customerPhone'] as String?,
+        customerPhones: data['customerPhones'] != null ? List<String>.from(data['customerPhones']) : null,
+        startDate: parseDate(data['startDate'] as Timestamp?),
+        endDate: parseDate(data['endDate'] as Timestamp?),
+        amount: (data['amount'] as num?)?.toDouble() ?? 0.0,
+        balance: (data['balance'] as num?)?.toDouble() ?? 0.0,
+        paidAmount: (data['paidAmount'] as num?)?.toDouble() ?? 0.0,
+        currency: data['currency'] as String? ?? 'USD',
+        status: _parseStatus(data['status'] as String?),
+        place: data['place'] as String?,
+        notes: data['notes'] as String?,
+        description: data['description'] as String?,
+        createdAt: parseDate(data['createdAt'] as Timestamp?),
+        updatedAt: parseDate(data['updatedAt'] as Timestamp?),
+        clientId: data['clientId'] as String?,
+        placeId: data['placeId'] as String?,
+        source: data['source'] as String?,
+        baseCurrencyAmount: (data['baseCurrencyAmount'] as num?)?.toDouble(),
     );
-  }
+}
+
 
   Map<String, dynamic> toFirestore() {
     return {
@@ -105,19 +111,11 @@ class BookingEvent {
   }
 
   static BookingStatus _parseStatus(String? status) {
-    switch (status) {
-      case 'confirmed':
-        return BookingStatus.confirmed;
-      case 'postponed':
-        return BookingStatus.postponed;
-      case 'pending':
-        return BookingStatus.pending;
-      case 'partially_paid':
-        return BookingStatus.partiallyPaid;
-      case 'cancelled':
-        return BookingStatus.cancelled;
-      default:
-        return BookingStatus.pending;
+    if (status == null) return BookingStatus.pending;
+    try {
+        return BookingStatus.values.firstWhere((e) => e.name == status);
+    } catch (e) {
+        return BookingStatus.pending; // Default fallback
     }
-  }
+}
 }

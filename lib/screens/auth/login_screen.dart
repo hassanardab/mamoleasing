@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import '../providers/app_provider.dart';
+import '../../providers/app_provider.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -27,30 +27,29 @@ class _LoginScreenState extends State<LoginScreen> {
               TextFormField(
                 controller: _emailController,
                 decoration: const InputDecoration(labelText: 'Email'),
+                validator: (value) => (value?.isEmpty ?? true) ? 'Please enter your email' : null,
               ),
               TextFormField(
                 controller: _passwordController,
                 decoration: const InputDecoration(labelText: 'Password'),
                 obscureText: true,
+                validator: (value) => (value?.isEmpty ?? true) ? 'Please enter your password' : null,
               ),
               const SizedBox(height: 20),
               ElevatedButton(
                 onPressed: () {
-                  Provider.of<AppProvider>(context, listen: false).signInWithEmailAndPassword(
-                    _emailController.text, 
-                    _passwordController.text,
-                  );
+                  if (_formKey.currentState!.validate()) {
+                    Provider.of<AppProvider>(context, listen: false).signInWithEmailAndPassword(
+                      _emailController.text, 
+                      _passwordController.text,
+                    );
+                  }
                 },
                 child: const Text('Login'),
               ),
               TextButton(
-                onPressed: () {
-                  Provider.of<AppProvider>(context, listen: false).signUpWithEmailAndPassword(
-                    _emailController.text, 
-                    _passwordController.text,
-                  );
-                },
-                child: const Text('Sign Up'),
+                onPressed: () => Navigator.of(context).pushNamed('/signup'), 
+                child: const Text('Don\'t have an account? Sign up')
               ),
             ],
           ),

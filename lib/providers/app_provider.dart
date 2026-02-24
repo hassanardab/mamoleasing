@@ -1,9 +1,9 @@
-
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'dart:async';
+import 'dart:developer' as developer;
 
 // --- Data Models ---
 
@@ -31,6 +31,15 @@ class Company {
       modulars: List<String>.from(data['modulars'] ?? []),
       logoUrl: data['logoUrl'],
     );
+  }
+
+  Map<String, dynamic> toFirestore() {
+    return {
+      'name': name,
+      'ownerId': ownerId,
+      'modulars': modulars,
+      'logoUrl': logoUrl,
+    };
   }
 }
 
@@ -86,6 +95,11 @@ class AppProvider with ChangeNotifier {
   String? get errorMessage => _errorMessage;
   bool get isAuthenticated => _firebaseUser != null;
 
+  // Logic expected by Router
+  bool get isLoggedIn => _firebaseUser != null;
+  bool get isInitialized => !_isLoading;
+  Stream<User?> get authStateChanges => _auth.authStateChanges();
+
   AppProvider() {
     _listenToAuthChanges();
   }
@@ -108,7 +122,6 @@ class AppProvider with ChangeNotifier {
 
       if (user != null) {
         await _ensureUserRecordExists(user);
-        // Start listening to the user document for real-time company updates
         _listenToUserDoc(user.uid);
       } else {
         _userData = null;
@@ -122,7 +135,8 @@ class AppProvider with ChangeNotifier {
   }
 
   void _listenToUserDoc(String userId) {
-    _userDocSubscription = _firestore.collection('users').doc(userId).snapshots().listen((doc) async {
+    _userDocSubscription =
+        _firestore.collection('users').doc(userId).snapshots().listen((doc) async {
       if (doc.exists) {
         _userData = UserData.fromFirestore(doc);
         await _fetchCompanies();
@@ -151,7 +165,7 @@ class AppProvider with ChangeNotifier {
         });
       }
     } catch (e) {
-      print("Error ensuring user record exists: $e");
+      developer.log("Error ensuring user record exists", error: e);
     }
   }
 
@@ -171,8 +185,7 @@ class AppProvider with ChangeNotifier {
           .get();
 
       _userCompanies = companyQuery.docs.map((doc) => Company.fromFirestore(doc)).toList();
-      
-      // Keep the current selection if it still exists, otherwise pick the first
+
       if (_selectedCompany != null) {
         bool stillExists = _userCompanies.any((c) => c.id == _selectedCompany!.id);
         if (stillExists) {
@@ -192,9 +205,13 @@ class AppProvider with ChangeNotifier {
   }
 
   void selectCompany(Company company) {
-    _selectedCompany = company;
-    _selectedModuleId = null; 
-    notifyListeners();
+    if (_selectedCompany?.id != company.id) {
+      _selectedCompany = company;
+      if (_selectedModuleId != null && !company.modulars.contains(_selectedModuleId)) {
+        _selectedModuleId = null;
+      }
+      notifyListeners();
+    }
   }
 
   void selectModule(String? moduleId) {
@@ -202,7 +219,13 @@ class AppProvider with ChangeNotifier {
     notifyListeners();
   }
 
-  Future<bool> signIn({required String email, required String password}) async {
+  void setSelectedModuleId(String? id) {
+    _selectedModuleId = id;
+    notifyListeners();
+  }
+
+  // Authentication Methods
+  Future<bool> signInWithEmailAndPassword(String email, String password) async {
     _isLoading = true;
     _errorMessage = null;
     notifyListeners();
@@ -214,16 +237,22 @@ class AppProvider with ChangeNotifier {
       _isLoading = false;
       notifyListeners();
       return false;
+    } catch (e) {
+      _errorMessage = e.toString();
+      _isLoading = false;
+      notifyListeners();
+      return false;
     }
   }
 
-  Future<bool> signUp({required String email, required String password, String name = 'New User'}) async {
+  Future<bool> signUpWithEmailAndPassword(String email, String password, {String name = 'New User'}) async {
     _isLoading = true;
     _errorMessage = null;
     notifyListeners();
     try {
-      UserCredential userCredential = await _auth.createUserWithEmailAndPassword(email: email, password: password);
-      
+      UserCredential userCredential =
+          await _auth.createUserWithEmailAndPassword(email: email, password: password);
+
       if (userCredential.user != null) {
         await _firestore.collection('users').doc(userCredential.user!.uid).set({
           'id': userCredential.user!.uid,
@@ -236,6 +265,11 @@ class AppProvider with ChangeNotifier {
       return true;
     } on FirebaseAuthException catch (e) {
       _errorMessage = e.message;
+      _isLoading = false;
+      notifyListeners();
+      return false;
+    } catch (e) {
+      _errorMessage = e.toString();
       _isLoading = false;
       notifyListeners();
       return false;
@@ -277,7 +311,41 @@ class AppProvider with ChangeNotifier {
       await _googleSignIn.signOut();
       await _auth.signOut();
     } catch (e) {
-      print("Error signing out: $e");
+      developer.log("Error signing out", error: e);
+    }
+  }
+
+  // Company Management Methods
+  Future<void> addCompany({required String name, String? logoUrl}) async {
+    if (_firebaseUser == null) return;
+    try {
+      final docRef = await _firestore.collection('companies').add({
+        'name': name,
+        'ownerId': _firebaseUser!.uid,
+        'modulars': [],
+        'logoUrl': logoUrl,
+        'createdAt': FieldValue.serverTimestamp(),
+      });
+
+      await _firestore.collection('users').doc(_firebaseUser!.uid).update({
+        'companyIds': FieldValue.arrayUnion([docRef.id]),
+      });
+    } catch (e) {
+      developer.log("Error adding company", error: e);
+      rethrow;
+    }
+  }
+
+  Future<void> updateCompany(String companyId, {required String name, String? logoUrl}) async {
+    try {
+      await _firestore.collection('companies').doc(companyId).update({
+        'name': name,
+        'logoUrl': logoUrl,
+        'updatedAt': FieldValue.serverTimestamp(),
+      });
+    } catch (e) {
+      developer.log("Error updating company", error: e);
+      rethrow;
     }
   }
 }

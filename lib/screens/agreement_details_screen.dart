@@ -38,7 +38,7 @@ class _AgreementDetailsScreenState extends State<AgreementDetailsScreen> {
       'vehicle': Vehicle.fromFirestore(
           vehicleDoc.data() as Map<String, dynamic>, vehicleDoc.id),
       'client': Client.fromFirestore(
-          clientDoc.data() as Map<String, dynamic>, clientDoc.id),
+          clientDoc),
     };
   }
 

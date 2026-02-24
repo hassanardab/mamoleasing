@@ -2,6 +2,7 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'dart:developer' as developer;
 
 class Company {
   final String id;
@@ -52,14 +53,13 @@ class CompanyProvider with ChangeNotifier {
           }
           _userCompanies = companies;
           
-          // Auto-select the first company
           if (_userCompanies.isNotEmpty) {
             _selectedCompany = _userCompanies.first;
           }
         }
       }
     } catch (e) {
-      print('Error fetching user companies: $e');
+      developer.log("Error fetching user companies", error: e);
     }
 
     _isLoading = false;

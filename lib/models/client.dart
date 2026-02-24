@@ -1,7 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 class Client {
-  final String id;
+  final String? id;
   final String name;
   final String? email;
   final String? phone;
@@ -12,7 +12,7 @@ class Client {
   final String? contactInfo;
 
   Client({
-    required this.id,
+    this.id,
     required this.name,
     this.email,
     this.phone,
