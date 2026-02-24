@@ -25,11 +25,19 @@ class _VehicleInventoryScreenState extends State<VehicleInventoryScreen> {
           return _buildErrorBody(context, appProvider);
         }
 
+        final moduleId = appProvider.selectedModuleId;
+
         return Scaffold(
           appBar: AppBar(
             title: Text(_getAppBarTitle(_selectedIndex, appProvider)),
             actions: [
-              if (_selectedIndex == 0) _buildCompanySwitcher(context, appProvider),
+              IconButton(
+                icon: const Icon(Icons.apps),
+                tooltip: 'Switch Module',
+                onPressed: () {
+                  appProvider.selectModule(''); // Logic to trigger redirect in router
+                },
+              ),
               IconButton(
                 icon: const Icon(Icons.account_circle),
                 tooltip: 'Profile',
@@ -46,27 +54,11 @@ class _VehicleInventoryScreenState extends State<VehicleInventoryScreen> {
                 _selectedIndex = index;
               });
             },
-            destinations: const [
-              NavigationDestination(
-                icon: Icon(Icons.directions_car_outlined),
-                selectedIcon: Icon(Icons.directions_car),
-                label: 'Inventory',
-              ),
-              NavigationDestination(
-                icon: Icon(Icons.calendar_month_outlined),
-                selectedIcon: Icon(Icons.calendar_month),
-                label: 'Bookings',
-              ),
-              NavigationDestination(
-                icon: Icon(Icons.people_outline),
-                selectedIcon: Icon(Icons.people),
-                label: 'Clients',
-              ),
-            ],
+            destinations: _getNavDestinations(moduleId),
           ),
-          floatingActionButton: _selectedIndex == 0
+          floatingActionButton: _shouldShowFAB(_selectedIndex, moduleId)
               ? FloatingActionButton(
-                  onPressed: () => appProvider.selectedCompany != null ? context.go('/add-vehicle') : null,
+                  onPressed: () => _handleFABAction(context, _selectedIndex, moduleId),
                   child: const Icon(Icons.add),
                 )
               : null,
@@ -75,70 +67,125 @@ class _VehicleInventoryScreenState extends State<VehicleInventoryScreen> {
     );
   }
 
+  List<NavigationDestination> _getNavDestinations(String? moduleId) {
+    if (moduleId == 'booking') {
+      return const [
+        NavigationDestination(
+          icon: Icon(Icons.calendar_month_outlined),
+          selectedIcon: Icon(Icons.calendar_month),
+          label: 'Schedule',
+        ),
+        NavigationDestination(
+          icon: Icon(Icons.list_alt_outlined),
+          selectedIcon: Icon(Icons.list_alt),
+          label: 'Bookings',
+        ),
+        NavigationDestination(
+          icon: Icon(Icons.people_outline),
+          selectedIcon: Icon(Icons.people),
+          label: 'Clients',
+        ),
+      ];
+    }
+    // Default to car_rental
+    return const [
+      NavigationDestination(
+        icon: Icon(Icons.directions_car_outlined),
+        selectedIcon: Icon(Icons.directions_car),
+        label: 'Inventory',
+      ),
+      NavigationDestination(
+        icon: Icon(Icons.calendar_today_outlined),
+        selectedIcon: Icon(Icons.calendar_today),
+        label: 'Rentals',
+      ),
+      NavigationDestination(
+        icon: Icon(Icons.people_outline),
+        selectedIcon: Icon(Icons.people),
+        label: 'Clients',
+      ),
+    ];
+  }
+
+  bool _shouldShowFAB(int index, String? moduleId) {
+    if (moduleId == 'booking') {
+      return index == 1; // Show for bookings list
+    }
+    return index == 0; // Show for car inventory
+  }
+
+  void _handleFABAction(BuildContext context, int index, String? moduleId) {
+    if (moduleId == 'booking') {
+       // Future: Navigate to create booking
+    } else {
+       context.go('/add-vehicle');
+    }
+  }
+
   String _getAppBarTitle(int index, AppProvider appProvider) {
+    final moduleId = appProvider.selectedModuleId;
+    if (moduleId == 'booking') {
+      switch (index) {
+        case 0: return 'Schedule';
+        case 1: return 'All Bookings';
+        case 2: return 'Clients';
+        default: return 'Booking System';
+      }
+    }
     switch (index) {
-      case 0:
-        return appProvider.selectedCompany?.name ?? 'Vehicle Inventory';
-      case 1:
-        return 'Bookings';
-      case 2:
-        return 'Manage Clients';
-      default:
-        return 'Car Rental';
+      case 0: return appProvider.selectedCompany?.name ?? 'Inventory';
+      case 1: return 'Active Rentals';
+      case 2: return 'Client Management';
+      default: return 'Car Rental';
     }
   }
 
   Widget _buildDrawer(BuildContext context, AppProvider appProvider) {
+    final moduleId = appProvider.selectedModuleId;
+
     return Drawer(
       child: Column(
         children: [
           UserAccountsDrawerHeader(
             accountName: Text(appProvider.userData?.name ?? 'User'),
             accountEmail: Text(appProvider.userData?.email ?? ''),
-            currentAccountPicture: const CircleAvatar(
-              child: Icon(Icons.person),
+            currentAccountPicture: const CircleAvatar(child: Icon(Icons.person)),
+          ),
+          if (moduleId == 'booking') ...[
+            ListTile(
+              leading: const Icon(Icons.schedule),
+              title: const Text('My Schedule'),
+              onTap: () { Navigator.pop(context); setState(() => _selectedIndex = 0); },
             ),
-          ),
-          ListTile(
-            leading: const Icon(Icons.inventory),
-            title: const Text('Inventory'),
-            onTap: () {
-              Navigator.pop(context);
-              setState(() => _selectedIndex = 0);
-            },
-          ),
-          ListTile(
-            leading: const Icon(Icons.calendar_today),
-            title: const Text('Bookings'),
-            onTap: () {
-              Navigator.pop(context);
-              setState(() => _selectedIndex = 1);
-            },
-          ),
+            ListTile(
+              leading: const Icon(Icons.book_online),
+              title: const Text('Manage Bookings'),
+              onTap: () { Navigator.pop(context); setState(() => _selectedIndex = 1); },
+            ),
+          ] else ...[
+            ListTile(
+              leading: const Icon(Icons.directions_car),
+              title: const Text('Car Inventory'),
+              onTap: () { Navigator.pop(context); setState(() => _selectedIndex = 0); },
+            ),
+            ListTile(
+              leading: const Icon(Icons.article),
+              title: const Text('Rental Agreements'),
+              onTap: () { Navigator.pop(context); context.go('/agreements'); },
+            ),
+          ],
           ListTile(
             leading: const Icon(Icons.people),
             title: const Text('Clients'),
-            onTap: () {
-              Navigator.pop(context);
-              setState(() => _selectedIndex = 2);
-            },
+            onTap: () { Navigator.pop(context); setState(() => _selectedIndex = 2); },
           ),
-          ListTile(
-            leading: const Icon(Icons.article),
-            title: const Text('Rental Agreements'),
-            onTap: () {
-              Navigator.pop(context);
-              context.go('/agreements');
-            },
-          ),
-          const Spacer(),
           const Divider(),
           ListTile(
-            leading: const Icon(Icons.person),
-            title: const Text('Profile'),
+            leading: const Icon(Icons.apps),
+            title: const Text('Switch Module'),
             onTap: () {
               Navigator.pop(context);
-              context.go('/profile');
+              appProvider.selectModule('');
             },
           ),
           ListTile(
@@ -152,67 +199,48 @@ class _VehicleInventoryScreenState extends State<VehicleInventoryScreen> {
   }
 
   Widget _buildErrorBody(BuildContext context, AppProvider appProvider) {
-    return Scaffold(
-      body: Center(
-        child: Padding(
-          padding: const EdgeInsets.all(24.0),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              const Icon(Icons.error_outline, color: Colors.red, size: 60),
-              const SizedBox(height: 16),
-              Text(
-                'Oops! Something went wrong.',
-                style: Theme.of(context).textTheme.headlineSmall,
-              ),
-              const SizedBox(height: 8),
-              Text(
-                appProvider.errorMessage!,
-                textAlign: TextAlign.center,
-                style: const TextStyle(color: Colors.grey),
-              ),
-              const SizedBox(height: 24),
-              ElevatedButton(
-                onPressed: () => appProvider.signOut(),
-                child: const Text('Sign Out'),
-              ),
-            ],
-          ),
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(24.0),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            const Icon(Icons.error_outline, color: Colors.red, size: 60),
+            const SizedBox(height: 16),
+            Text('Oops! Something went wrong.', style: Theme.of(context).textTheme.headlineSmall),
+            const SizedBox(height: 8),
+            Text(appProvider.errorMessage!, textAlign: TextAlign.center, style: const TextStyle(color: Colors.grey)),
+            const SizedBox(height: 24),
+            ElevatedButton(onPressed: () => appProvider.signOut(), child: const Text('Sign Out')),
+          ],
         ),
       ),
     );
   }
 
-  Widget _buildCompanySwitcher(BuildContext context, AppProvider appProvider) {
-    if (appProvider.userCompanies.length > 1) {
-      return PopupMenuButton<Company>(
-        icon: const Icon(Icons.business),
-        onSelected: (company) => appProvider.selectCompany(company),
-        itemBuilder: (context) => appProvider.userCompanies
-            .map((c) => PopupMenuItem(value: c, child: Text(c.name)))
-            .toList(),
-      );
-    }
-    return const SizedBox.shrink();
-  }
-
   Widget _buildBody(BuildContext context, AppProvider appProvider, int index) {
+    final moduleId = appProvider.selectedModuleId;
+
+    if (moduleId == 'booking') {
+      switch (index) {
+        case 0: return const Center(child: Text('Calendar/Schedule View'));
+        case 1: return const Center(child: Text('List of All Bookings'));
+        case 2: return const Center(child: Text('Clients List'));
+        default: return const Center(child: Text('Module Error'));
+      }
+    }
+
+    // Car Rental Logic
     switch (index) {
-      case 0:
-        return _buildInventoryList(context, appProvider);
-      case 1:
-        return const Center(child: Text('Bookings Placeholder'));
-      case 2:
-        return const Center(child: Text('Manage Clients Placeholder'));
-      default:
-        return const Center(child: Text('Coming Soon'));
+      case 0: return _buildInventoryList(context, appProvider);
+      case 1: return const Center(child: Text('Active Agreements List'));
+      case 2: return const Center(child: Text('Clients List'));
+      default: return const Center(child: Text('Module Error'));
     }
   }
 
   Widget _buildInventoryList(BuildContext context, AppProvider appProvider) {
-    if (appProvider.selectedCompany == null) {
-      return const Center(child: Text('No company selected or found.'));
-    }
+    if (appProvider.selectedCompany == null) return const Center(child: Text('No company selected.'));
 
     return StreamBuilder<QuerySnapshot>(
       stream: FirebaseFirestore.instance
@@ -221,15 +249,9 @@ class _VehicleInventoryScreenState extends State<VehicleInventoryScreen> {
           .collection('vehicles')
           .snapshots(),
       builder: (context, snapshot) {
-        if (snapshot.connectionState == ConnectionState.waiting) {
-          return const Center(child: CircularProgressIndicator());
-        }
-        if (snapshot.hasError) {
-          return Center(child: Text('Error: ${snapshot.error}'));
-        }
-        if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
-          return const Center(child: Text('No vehicles found for this company.'));
-        }
+        if (snapshot.connectionState == ConnectionState.waiting) return const Center(child: CircularProgressIndicator());
+        if (snapshot.hasError) return Center(child: Text('Error: ${snapshot.error}'));
+        if (!snapshot.hasData || snapshot.data!.docs.isEmpty) return const Center(child: Text('No vehicles found.'));
 
         final vehicles = snapshot.data!.docs
             .map((doc) => Vehicle.fromFirestore(doc.data() as Map<String, dynamic>, doc.id))

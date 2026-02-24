@@ -4,7 +4,8 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:provider/provider.dart';
 
 import 'firebase_options.dart';
-import './providers/app_provider.dart'; 
+import './providers/app_provider.dart';
+import './providers/booking_provider.dart';
 import './router.dart';
 
 void main() async {
@@ -20,15 +21,29 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ChangeNotifierProvider(
-      create: (context) => AppProvider(),
+    return MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (context) => AppProvider()),
+        ChangeNotifierProxyProvider<AppProvider, BookingProvider>(
+          create: (context) => BookingProvider(),
+          update: (context, appProvider, bookingProvider) {
+            bookingProvider!.updateCompanyId(appProvider.currentCompanyId);
+            return bookingProvider;
+          },
+        ),
+      ],
       child: Consumer<AppProvider>(
         builder: (context, appProvider, child) {
           final router = AppRouter(appProvider).router;
           return MaterialApp.router(
             title: 'Vehicle Rental Manager',
+            debugShowCheckedModeBanner: false,
             theme: ThemeData(
-              primarySwatch: Colors.blue,
+              useMaterial3: true,
+              colorScheme: ColorScheme.fromSeed(
+                seedColor: const Color(0xFF1E3A8A), // Deep Blue
+                brightness: Brightness.light,
+              ),
               textTheme: GoogleFonts.interTextTheme(
                 Theme.of(context).textTheme,
               ),

@@ -8,7 +8,7 @@ import './screens/manage_clients_screen.dart';
 import './screens/agreements_screen.dart';
 import './screens/profile_screen.dart';
 import './screens/bookings_screen.dart';
-import './screens/no_access_screen.dart';
+import './screens/module_selection_screen.dart';
 
 class AppRouter {
   final AppProvider appProvider;
@@ -28,8 +28,8 @@ class AppRouter {
         builder: (context, state) => const LoginScreen(),
       ),
       GoRoute(
-        path: '/no-access',
-        builder: (context, state) => const NoAccessScreen(),
+        path: '/select-module',
+        builder: (context, state) => const ModuleSelectionScreen(),
       ),
       GoRoute(
         path: '/',
@@ -46,28 +46,27 @@ class AppRouter {
     redirect: (context, state) {
       final isLoading = appProvider.isLoading;
       final isAuthenticated = appProvider.isAuthenticated;
-      final hasCarRental = appProvider.hasCarRentalModule;
+      final selectedModuleId = appProvider.selectedModuleId;
       final currentPath = state.uri.path;
 
-      // While the provider is loading initial auth/user data, keep them on splash.
       if (isLoading && currentPath != '/splash') {
         return '/splash';
       }
 
-      // Once loading is complete:
       if (!isLoading) {
         if (!isAuthenticated && currentPath != '/login') {
           return '/login';
         }
         
         if (isAuthenticated) {
-          // If authenticated but no car rental module access
-          if (!hasCarRental && currentPath != '/no-access') {
-            return '/no-access';
+          // If no module is selected, redirect to selection screen
+          if ((selectedModuleId == null || selectedModuleId.isEmpty) && currentPath != '/select-module') {
+            return '/select-module';
           }
           
-          // If has access but on login/splash/no-access, go home
-          if (hasCarRental && (currentPath == '/login' || currentPath == '/splash' || currentPath == '/no-access')) {
+          // If a module is selected and we're on login/splash/select-module, go to main
+          if (selectedModuleId != null && selectedModuleId.isNotEmpty && 
+              (currentPath == '/login' || currentPath == '/splash' || currentPath == '/select-module')) {
             return '/';
           }
         }

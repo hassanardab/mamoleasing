@@ -1,34 +1,45 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+
 class Client {
   final String id;
   final String name;
-  final String driverLicenseId;
-  final String contactInfo;
-  final List<String> rentalHistory;
+  final String? email;
+  final String? phone;
+  final List<String>? phones;
+  final String? address;
+  final double balance;
 
   Client({
     required this.id,
     required this.name,
-    required this.driverLicenseId,
-    required this.contactInfo,
-    required this.rentalHistory,
+    this.email,
+    this.phone,
+    this.phones,
+    this.address,
+    this.balance = 0,
   });
 
-  factory Client.fromFirestore(Map<String, dynamic> data, String documentId) {
+  factory Client.fromFirestore(DocumentSnapshot doc) {
+    Map<String, dynamic> data = doc.data() as Map<String, dynamic>;
     return Client(
-      id: documentId,
+      id: doc.id,
       name: data['name'] ?? '',
-      driverLicenseId: data['driverLicenseId'] ?? '',
-      contactInfo: data['contactInfo'] ?? '',
-      rentalHistory: List<String>.from(data['rentalHistory'] ?? []),
+      email: data['email'],
+      phone: data['phone'],
+      phones: data['phones'] != null ? List<String>.from(data['phones']) : null,
+      address: data['address'],
+      balance: (data['balance'] ?? 0).toDouble(),
     );
   }
 
   Map<String, dynamic> toFirestore() {
     return {
       'name': name,
-      'driverLicenseId': driverLicenseId,
-      'contactInfo': contactInfo,
-      'rentalHistory': rentalHistory,
+      'email': email,
+      'phone': phone,
+      'phones': phones,
+      'address': address,
+      'balance': balance,
     };
   }
 }

@@ -11,9 +11,16 @@ class Company {
   final String id;
   final String name;
   final String? ownerId;
-  final List<String> modules;
+  final List<String> modulars;
+  final String? logoUrl;
 
-  Company({required this.id, required this.name, this.ownerId, required this.modules});
+  Company({
+    required this.id,
+    required this.name,
+    this.ownerId,
+    required this.modulars,
+    this.logoUrl,
+  });
 
   factory Company.fromFirestore(DocumentSnapshot doc) {
     Map<String, dynamic> data = doc.data() as Map<String, dynamic>;
@@ -21,7 +28,8 @@ class Company {
       id: doc.id,
       name: data['name'] ?? 'Unnamed Company',
       ownerId: data['ownerId'],
-      modules: List<String>.from(data['modules'] ?? []),
+      modulars: List<String>.from(data['modulars'] ?? []),
+      logoUrl: data['logoUrl'],
     );
   }
 }
@@ -61,25 +69,22 @@ class AppProvider with ChangeNotifier {
   User? _firebaseUser;
   UserData? _userData;
   Company? _selectedCompany;
+  String? _selectedModuleId;
   List<Company> _userCompanies = [];
   bool _isLoading = true;
   String? _errorMessage;
   StreamSubscription<User?>? _authSubscription;
+  StreamSubscription<DocumentSnapshot>? _userDocSubscription;
 
   // Getters
   User? get firebaseUser => _firebaseUser;
   UserData? get userData => _userData;
   Company? get selectedCompany => _selectedCompany;
+  String? get selectedModuleId => _selectedModuleId;
   List<Company> get userCompanies => _userCompanies;
   bool get isLoading => _isLoading;
   String? get errorMessage => _errorMessage;
   bool get isAuthenticated => _firebaseUser != null;
-
-  // Car Rental Specific Access Check
-  bool get hasCarRentalModule {
-    if (_selectedCompany == null) return false;
-    return _selectedCompany!.modules.contains('car_rental');
-  }
 
   AppProvider() {
     _listenToAuthChanges();
@@ -88,6 +93,7 @@ class AppProvider with ChangeNotifier {
   @override
   void dispose() {
     _authSubscription?.cancel();
+    _userDocSubscription?.cancel();
     super.dispose();
   }
 
@@ -98,64 +104,87 @@ class AppProvider with ChangeNotifier {
       notifyListeners();
 
       _firebaseUser = user;
+      _userDocSubscription?.cancel();
+
       if (user != null) {
         await _ensureUserRecordExists(user);
-        await _initialDataFetch(user.uid);
+        // Start listening to the user document for real-time company updates
+        _listenToUserDoc(user.uid);
       } else {
         _userData = null;
         _userCompanies = [];
         _selectedCompany = null;
+        _selectedModuleId = null;
         _isLoading = false;
         notifyListeners();
       }
     });
   }
 
+  void _listenToUserDoc(String userId) {
+    _userDocSubscription = _firestore.collection('users').doc(userId).snapshots().listen((doc) async {
+      if (doc.exists) {
+        _userData = UserData.fromFirestore(doc);
+        await _fetchCompanies();
+      } else {
+        _errorMessage = "User record not found.";
+        _isLoading = false;
+        notifyListeners();
+      }
+    }, onError: (e) {
+      _errorMessage = "Error listening to user data: $e";
+      _isLoading = false;
+      notifyListeners();
+    });
+  }
+
   Future<void> _ensureUserRecordExists(User user) async {
-    final userDoc = await _firestore.collection('users').doc(user.uid).get();
-    if (!userDoc.exists) {
-      await _firestore.collection('users').doc(user.uid).set({
-        'id': user.uid,
-        'email': user.email,
-        'name': user.displayName ?? 'New User',
-        'companyIds': [],
-        'createdAt': FieldValue.serverTimestamp(),
-      });
+    try {
+      final userDoc = await _firestore.collection('users').doc(user.uid).get();
+      if (!userDoc.exists) {
+        await _firestore.collection('users').doc(user.uid).set({
+          'id': user.uid,
+          'email': user.email,
+          'name': user.displayName ?? 'New User',
+          'companyIds': [],
+          'createdAt': FieldValue.serverTimestamp(),
+        });
+      }
+    } catch (e) {
+      print("Error ensuring user record exists: $e");
     }
   }
 
-  Future<void> _initialDataFetch(String userId) async {
+  Future<void> _fetchCompanies() async {
+    if (_userData == null || _userData!.companyIds.isEmpty) {
+      _userCompanies = [];
+      _selectedCompany = null;
+      _isLoading = false;
+      notifyListeners();
+      return;
+    }
+
     try {
-      // 1. Fetch User Data
-      final userDoc = await _firestore.collection('users').doc(userId).get();
-      if (!userDoc.exists) {
-        _errorMessage = "User record not found in database.";
-        _isLoading = false;
-        notifyListeners();
-        return;
-      }
+      final companyQuery = await _firestore
+          .collection('companies')
+          .where(FieldPath.documentId, whereIn: _userData!.companyIds)
+          .get();
+
+      _userCompanies = companyQuery.docs.map((doc) => Company.fromFirestore(doc)).toList();
       
-      _userData = UserData.fromFirestore(userDoc);
-
-      // 2. Fetch Companies using 'whereIn' for efficiency
-      if (_userData!.companyIds.isNotEmpty) {
-        final companyQuery = await _firestore
-            .collection('companies')
-            .where(FieldPath.documentId, whereIn: _userData!.companyIds)
-            .get();
-
-        _userCompanies = companyQuery.docs.map((doc) => Company.fromFirestore(doc)).toList();
-        
-        if (_userCompanies.isNotEmpty) {
-          _selectedCompany = _userCompanies.first;
+      // Keep the current selection if it still exists, otherwise pick the first
+      if (_selectedCompany != null) {
+        bool stillExists = _userCompanies.any((c) => c.id == _selectedCompany!.id);
+        if (stillExists) {
+          _selectedCompany = _userCompanies.firstWhere((c) => c.id == _selectedCompany!.id);
+        } else {
+          _selectedCompany = _userCompanies.isNotEmpty ? _userCompanies.first : null;
         }
       } else {
-        _userCompanies = [];
-        _selectedCompany = null;
+        _selectedCompany = _userCompanies.isNotEmpty ? _userCompanies.first : null;
       }
     } catch (e) {
-      _errorMessage = "Failed to load data: $e";
-      print("Error in _initialDataFetch: $e");
+      _errorMessage = "Failed to load companies: $e";
     } finally {
       _isLoading = false;
       notifyListeners();
@@ -163,10 +192,14 @@ class AppProvider with ChangeNotifier {
   }
 
   void selectCompany(Company company) {
-    if (_userCompanies.any((c) => c.id == company.id)) {
-      _selectedCompany = company;
-      notifyListeners();
-    }
+    _selectedCompany = company;
+    _selectedModuleId = null; 
+    notifyListeners();
+  }
+
+  void selectModule(String? moduleId) {
+    _selectedModuleId = moduleId;
+    notifyListeners();
   }
 
   Future<bool> signIn({required String email, required String password}) async {
@@ -191,7 +224,6 @@ class AppProvider with ChangeNotifier {
     try {
       UserCredential userCredential = await _auth.createUserWithEmailAndPassword(email: email, password: password);
       
-      // Create the user document in Firestore
       if (userCredential.user != null) {
         await _firestore.collection('users').doc(userCredential.user!.uid).set({
           'id': userCredential.user!.uid,
@@ -239,7 +271,13 @@ class AppProvider with ChangeNotifier {
   }
 
   Future<void> signOut() async {
-    await _googleSignIn.signOut();
-    await _auth.signOut();
+    _isLoading = true;
+    notifyListeners();
+    try {
+      await _googleSignIn.signOut();
+      await _auth.signOut();
+    } catch (e) {
+      print("Error signing out: $e");
+    }
   }
 }
