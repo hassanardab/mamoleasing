@@ -11,8 +11,9 @@ class Company {
   final String id;
   final String name;
   final String? ownerId;
+  final List<String> modules;
 
-  Company({required this.id, required this.name, this.ownerId});
+  Company({required this.id, required this.name, this.ownerId, required this.modules});
 
   factory Company.fromFirestore(DocumentSnapshot doc) {
     Map<String, dynamic> data = doc.data() as Map<String, dynamic>;
@@ -20,6 +21,7 @@ class Company {
       id: doc.id,
       name: data['name'] ?? 'Unnamed Company',
       ownerId: data['ownerId'],
+      modules: List<String>.from(data['modules'] ?? []),
     );
   }
 }
@@ -72,6 +74,12 @@ class AppProvider with ChangeNotifier {
   bool get isLoading => _isLoading;
   String? get errorMessage => _errorMessage;
   bool get isAuthenticated => _firebaseUser != null;
+
+  // Car Rental Specific Access Check
+  bool get hasCarRentalModule {
+    if (_selectedCompany == null) return false;
+    return _selectedCompany!.modules.contains('car_rental');
+  }
 
   AppProvider() {
     _listenToAuthChanges();

@@ -8,6 +8,7 @@ import './screens/manage_clients_screen.dart';
 import './screens/agreements_screen.dart';
 import './screens/profile_screen.dart';
 import './screens/bookings_screen.dart';
+import './screens/no_access_screen.dart';
 
 class AppRouter {
   final AppProvider appProvider;
@@ -27,6 +28,10 @@ class AppRouter {
         builder: (context, state) => const LoginScreen(),
       ),
       GoRoute(
+        path: '/no-access',
+        builder: (context, state) => const NoAccessScreen(),
+      ),
+      GoRoute(
         path: '/',
         builder: (context, state) => const VehicleInventoryScreen(),
         routes: [
@@ -41,6 +46,7 @@ class AppRouter {
     redirect: (context, state) {
       final isLoading = appProvider.isLoading;
       final isAuthenticated = appProvider.isAuthenticated;
+      final hasCarRental = appProvider.hasCarRentalModule;
       final currentPath = state.uri.path;
 
       // While the provider is loading initial auth/user data, keep them on splash.
@@ -53,8 +59,17 @@ class AppRouter {
         if (!isAuthenticated && currentPath != '/login') {
           return '/login';
         }
-        if (isAuthenticated && (currentPath == '/login' || currentPath == '/splash')) {
-          return '/';
+        
+        if (isAuthenticated) {
+          // If authenticated but no car rental module access
+          if (!hasCarRental && currentPath != '/no-access') {
+            return '/no-access';
+          }
+          
+          // If has access but on login/splash/no-access, go home
+          if (hasCarRental && (currentPath == '/login' || currentPath == '/splash' || currentPath == '/no-access')) {
+            return '/';
+          }
         }
       }
 

@@ -14,6 +14,7 @@ service cloud.firestore {
     }
 
     // Super Admin check using specific email
+    // Only this specific user can access the Mamo-15 Dashboard features globally
     function isSuperAdmin() {
       return isAuthenticated() && request.auth.token.email == "ardab.hassan@gmail.com";
     }
@@ -43,6 +44,10 @@ service cloud.firestore {
     // Collection Group Queries
     // =========================
     match /{path=**}/payments/{paymentId} {
+      // This rule allows collection group queries on the 'payments' collection.
+      // It's necessary for calculating total revenue across all events.
+      // A user can only read payments belonging to a company they are a member of.
+      // Super Admin can read all for dashboard.
       allow read: if isCompanyMember(resource.data.companyId) || isSuperAdmin();
     }
 
@@ -50,6 +55,7 @@ service cloud.firestore {
     // Users
     // =========================
     match /users/{userId} {
+      // Allow super admin to read all users to monitor registrations (list all)
       allow read: if isOwner(userId) || isSuperAdmin();
       allow write: if isOwner(userId) || isSuperAdmin();
     }
@@ -58,16 +64,22 @@ service cloud.firestore {
     // Companies
     // =========================
     match /companies/{companyId} {
+
+      // Allow super admin to read all companies for the dashboard (list all)
       allow read: if isCompanyMember(companyId) || isSuperAdmin();
       allow create: if isAuthenticated();
       allow update, delete: if isCompanyOwner(companyId) || isSuperAdmin();
 
-      // Tasks
+      // =========================
+      // Tasks (Individual & Company)
+      // =========================
       match /tasks/{taskId} {
         allow read, create, update, delete: if isCompanyMember(companyId) || isSuperAdmin();
       }
 
+      // =========================
       // Members
+      // =========================
       match /members/{memberId} {
         allow read, create: if isCompanyMember(companyId) || isSuperAdmin();
         allow update, delete: if isCompanyOwner(companyId) || isSuperAdmin();
@@ -77,7 +89,9 @@ service cloud.firestore {
                        request.resource.data.userId == request.auth.uid;
       }
       
+      // =========================
       // Accounting
+      // =========================
       match /accounts/{accountId} {
         allow read, create, update, delete: if isCompanyMember(companyId) || isSuperAdmin();
       }
@@ -86,27 +100,166 @@ service cloud.firestore {
         allow read, create, update, delete: if isCompanyMember(companyId) || isSuperAdmin();
       }
 
-      // Vehicles (Adding these as they are core to our current app)
+      // =========================
+      // Vehicles (Added to support the Car Rental app features)
+      // =========================
       match /vehicles/{vehicleId} {
         allow read, create, update, delete: if isCompanyMember(companyId) || isSuperAdmin();
       }
 
-      // Agreements
+      // =========================
+      // Agreements (Added to support the Car Rental app features)
+      // =========================
       match /agreements/{agreementId} {
         allow read, create, update, delete: if isCompanyMember(companyId) || isSuperAdmin();
       }
 
-      // Clients
-      match /clients/{clientId} {
-        allow read, create, update, delete: if isCompanyMember(companyId) || isSuperAdmin();
+      // =========================
+      // Company-wide Payments (DEPRECATED)
+      // =========================
+      match /payments/{paymentId} {
+        allow read: if isCompanyMember(companyId) || isSuperAdmin();
+        allow create, update, delete: if isCompanyMember(companyId) || isSuperAdmin();
+
+        allow create: if request.resource.data.amount != null &&
+                       request.resource.data.date != null &&
+                       request.resource.data.method != null &&
+                       request.resource.data.currency != null &&
+                       request.resource.data.eventId != null &&
+                       request.resource.data.companyId == companyId;
+
+        allow update: if request.resource.data.updatedAt != null &&
+                       request.resource.data.eventId == resource.data.eventId &&
+                       request.resource.data.companyId == resource.data.companyId;
       }
 
-      // ... other sub-collections ...
+      // =========================
+      // Booking Events
+      // =========================
+      match /bookingEvents/{eventId} {
+
+        // Public read for availability
+        allow read: if true;
+
+        allow create, update, delete: if isCompanyMember(companyId) || isSuperAdmin();
+
+        allow create: if request.resource.data.title != null &&
+                       request.resource.data.startDate != null &&
+                       request.resource.data.endDate != null &&
+                       request.resource.data.customerName != null;
+
+        allow update: if request.resource.data.updatedAt != null;
+
+        // Payments SUB-COLLECTION
+        match /payments/{paymentId} {
+          allow read, create, update, delete: if isCompanyMember(companyId) || isSuperAdmin();
+        }
+      }
+
+      // =========================
+      // Payment Expectations
+      // =========================
+      match /paymentExpectations/{paymentId} {
+        allow read, create, update, delete: if isCompanyMember(companyId) || isSuperAdmin();
+
+        allow create: if request.resource.data.eventId != null &&
+                       request.resource.data.dueDate != null &&
+                       request.resource.data.amount != null;
+      }
+
+      // =========================
+      // Booking Summary (stats)
+      // =========================
+      match /bookingSummary/{summaryId} {
+        allow read: if isCompanyMember(companyId) || isSuperAdmin();
+        allow create, update: if isCompanyMember(companyId) || isSuperAdmin();
+        allow delete: if false;
+
+        allow create: if request.resource.data.date != null &&
+                       request.resource.data.totalRevenue != null;
+
+        allow update: if request.resource.data.updatedAt != null;
+      }
+
+      // =========================
+      // Online / Unconfirmed Bookings
+      // =========================
+      match /onlineBookings/{bookingId} {
+        allow read: if true;
+        allow create: if true;
+
+        allow update, delete: if isCompanyMember(companyId) || isSuperAdmin();
+
+        allow create: if request.resource.data.startDate != null &&
+                       request.resource.data.customerName != null;
+
+        allow update: if request.resource.data.status == 'confirmed' &&
+                       resource.data.status == 'pending' &&
+                       (isCompanyMember(companyId) || isSuperAdmin());
+      }
+
+      // =========================
+      // Clients
+      // =========================
+      match /clients/{clientId} {
+        allow read, create, update, delete: if isCompanyMember(companyId) || isSuperAdmin();
+
+        allow create: if request.resource.data.name != null;
+        allow update: if request.resource.data.updatedAt != null;
+      }
+
+      // =========================
+      // Places
+      // =========================
+      match /places/{placeId} {
+        allow read, create, update, delete: if isCompanyMember(companyId) || isSuperAdmin();
+
+        allow create: if request.resource.data.name != null;
+        allow update: if request.resource.data.updatedAt != null;
+      }
     }
-    
-    // Fallback for any other collections
-    match /{document=**} {
-      allow read, write: if isSuperAdmin();
+
+    // =========================
+    // Invitations
+    // =========================
+    match /invitations/{invitationId} {
+      allow read: if true;
+
+      allow create: if isAuthenticated() &&
+                     (isCompanyOwner(request.resource.data.companyId) || isSuperAdmin());
+
+      allow update: if isAuthenticated() &&
+                     request.auth.token.email == resource.data.email;
+
+      allow delete: if isAuthenticated() &&
+                     (isCompanyOwner(request.resource.data.companyId) || isSuperAdmin());
+    }
+
+    // =========================
+    // Website Configs
+    // =========================
+    match /websiteConfigs/{websiteConfigId} {
+
+      allow read: if isAuthenticated() &&
+                   (isCompanyMember(resource.data.companyId) || isSuperAdmin());
+
+      allow create: if isAuthenticated() &&
+                     (isCompanyMember(request.resource.data.companyId) || isSuperAdmin()) &&
+                     request.resource.data.name != null &&
+                     request.resource.data.slug != null &&
+                     request.resource.data.companyId != null;
+
+      allow update: if isAuthenticated() &&
+                     (isCompanyMember(resource.data.companyId) || isSuperAdmin()) &&
+                     request.resource.data.companyId == resource.data.companyId;
+
+      allow delete: if isAuthenticated() &&
+                     (isCompanyMember(resource.data.companyId) || isSuperAdmin());
+    }
+
+    // Public read for published websites
+    match /websiteConfigs/{websiteConfigId} {
+      allow read: if resource.data.status == 'published';
     }
   }
 }
