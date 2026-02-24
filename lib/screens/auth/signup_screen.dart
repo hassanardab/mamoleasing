@@ -27,20 +27,24 @@ class _SignupScreenState extends State<SignupScreen> {
               TextFormField(
                 controller: _emailController,
                 decoration: const InputDecoration(labelText: 'Email'),
-                validator: (value) => (value?.isEmpty ?? true) ? 'Please enter your email' : null,
+                validator: (value) =>
+                    (value?.isEmpty ?? true) ? 'Please enter your email' : null,
               ),
               TextFormField(
                 controller: _passwordController,
                 decoration: const InputDecoration(labelText: 'Password'),
                 obscureText: true,
-                validator: (value) => (value?.isEmpty ?? true) ? 'Please enter your password' : null,
+                validator: (value) => (value?.isEmpty ?? true)
+                    ? 'Please enter your password'
+                    : null,
               ),
               const SizedBox(height: 20),
               ElevatedButton(
                 onPressed: () {
                   if (_formKey.currentState!.validate()) {
-                    Provider.of<AppProvider>(context, listen: false).signUpWithEmailAndPassword(
-                      _emailController.text, 
+                    Provider.of<AppProvider>(context, listen: false)
+                        .signUpWithEmailAndPassword(
+                      _emailController.text,
                       _passwordController.text,
                     );
                   }

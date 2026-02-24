@@ -37,16 +37,15 @@ class _AgreementDetailsScreenState extends State<AgreementDetailsScreen> {
     return {
       'vehicle': Vehicle.fromFirestore(
           vehicleDoc.data() as Map<String, dynamic>, vehicleDoc.id),
-      'client': Client.fromFirestore(
-          clientDoc),
+      'client': Client.fromFirestore(clientDoc),
     };
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar:
-          AppBar(title: Text('Agreement #${widget.agreement.id.substring(0, 5)}...')),
+      appBar: AppBar(
+          title: Text('Agreement #${widget.agreement.id.substring(0, 5)}...')),
       body: FutureBuilder<Map<String, dynamic>>(
         future: _dataFuture,
         builder: (context, snapshot) {
@@ -91,8 +90,8 @@ class _AgreementDetailsScreenState extends State<AgreementDetailsScreen> {
                       'Insurance', widget.agreement.insuranceDetails),
                   _buildDetailItem('Initial Mileage',
                       widget.agreement.initialMileage.toString()),
-                  _buildDetailItem('Initial Fuel',
-                      '${widget.agreement.initialFuelLevel}%'),
+                  _buildDetailItem(
+                      'Initial Fuel', '${widget.agreement.initialFuelLevel}%'),
                 ],
               ),
             ),

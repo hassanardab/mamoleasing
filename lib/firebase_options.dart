@@ -64,7 +64,8 @@ class DefaultFirebaseOptions {
     messagingSenderId: '148665146396',
     projectId: 'nas-shop',
     storageBucket: 'nas-shop.firebasestorage.app',
-    iosClientId: '148665146396-a2r621ol53me3t6lfjucgnqb200rv5q6.apps.googleusercontent.com',
+    iosClientId:
+        '148665146396-a2r621ol53me3t6lfjucgnqb200rv5q6.apps.googleusercontent.com',
     iosBundleId: 'com.example.nasShop',
   );
 
@@ -74,7 +75,8 @@ class DefaultFirebaseOptions {
     messagingSenderId: '148665146396',
     projectId: 'nas-shop',
     storageBucket: 'nas-shop.firebasestorage.app',
-    iosClientId: '148665146396-a2r621ol53me3t6lfjucgnqb200rv5q6.apps.googleusercontent.com',
+    iosClientId:
+        '148665146396-a2r621ol53me3t6lfjucgnqb200rv5q6.apps.googleusercontent.com',
     iosBundleId: 'com.example.nasShop',
   );
 

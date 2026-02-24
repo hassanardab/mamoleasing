@@ -36,8 +36,9 @@ class _LoginScreenState extends State<LoginScreen> {
               const SizedBox(height: 20),
               ElevatedButton(
                 onPressed: () {
-                  Provider.of<AppProvider>(context, listen: false).signInWithEmailAndPassword(
-                    _emailController.text, 
+                  Provider.of<AppProvider>(context, listen: false)
+                      .signInWithEmailAndPassword(
+                    _emailController.text,
                     _passwordController.text,
                   );
                 },
@@ -45,8 +46,9 @@ class _LoginScreenState extends State<LoginScreen> {
               ),
               TextButton(
                 onPressed: () {
-                  Provider.of<AppProvider>(context, listen: false).signUpWithEmailAndPassword(
-                    _emailController.text, 
+                  Provider.of<AppProvider>(context, listen: false)
+                      .signUpWithEmailAndPassword(
+                    _emailController.text,
                     _passwordController.text,
                   );
                 },

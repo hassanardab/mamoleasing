@@ -25,7 +25,8 @@ class _AddVehicleScreenState extends State<AddVehicleScreen> {
   XFile? _imageFile;
 
   Future<void> _pickImage() async {
-    final pickedFile = await ImagePicker().pickImage(source: ImageSource.gallery);
+    final pickedFile =
+        await ImagePicker().pickImage(source: ImageSource.gallery);
     setState(() {
       _imageFile = pickedFile;
     });
@@ -38,9 +39,8 @@ class _AddVehicleScreenState extends State<AddVehicleScreen> {
     final companyId = appProvider.selectedCompany?.id;
     if (companyId == null) return null;
 
-    final storageRef = FirebaseStorage.instance
-        .ref()
-        .child('companies/$companyId/vehicles/$vehicleId/images/${_imageFile!.name}');
+    final storageRef = FirebaseStorage.instance.ref().child(
+        'companies/$companyId/vehicles/$vehicleId/images/${_imageFile!.name}');
     final uploadTask = storageRef.putFile(File(_imageFile!.path));
     final snapshot = await uploadTask.whenComplete(() => {});
     return await snapshot.ref.getDownloadURL();

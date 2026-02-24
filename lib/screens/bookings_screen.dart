@@ -18,7 +18,8 @@ class BookingsScreen extends StatelessWidget {
           IconButton(
             icon: const Icon(Icons.today),
             onPressed: () {
-              Provider.of<BookingProvider>(context, listen: false).selectDate(DateTime.now());
+              Provider.of<BookingProvider>(context, listen: false)
+                  .selectDate(DateTime.now());
             },
             tooltip: 'Go to Today',
           ),
@@ -65,7 +66,10 @@ class BookingsScreen extends StatelessWidget {
         Expanded(
           flex: 2,
           child: Container(
-            color: Theme.of(context).colorScheme.surfaceContainerHighest.withAlpha(128),
+            color: Theme.of(context)
+                .colorScheme
+                .surfaceContainerHighest
+                .withAlpha(128),
             child: const EventsList(),
           ),
         ),
@@ -87,7 +91,10 @@ class BookingsScreen extends StatelessWidget {
             SizedBox(
               height: 500, // Constrain height for the list in a scroll view
               child: Container(
-                color: Theme.of(context).colorScheme.surfaceContainerHighest.withAlpha(128),
+                color: Theme.of(context)
+                    .colorScheme
+                    .surfaceContainerHighest
+                    .withAlpha(128),
                 child: const EventsList(),
               ),
             ),

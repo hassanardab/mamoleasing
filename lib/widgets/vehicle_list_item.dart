@@ -17,7 +17,12 @@ class VehicleListItem extends StatelessWidget {
           width: 80,
           height: 80,
           child: vehicle.imageUrl != null
-              ? Image.network(vehicle.imageUrl!, fit: BoxFit.cover, errorBuilder: (context, error, stackTrace) => const Icon(Icons.car_rental),)
+              ? Image.network(
+                  vehicle.imageUrl!,
+                  fit: BoxFit.cover,
+                  errorBuilder: (context, error, stackTrace) =>
+                      const Icon(Icons.car_rental),
+                )
               : const Icon(Icons.directions_car, size: 40),
         ),
         title: Text('${vehicle.make} ${vehicle.model}'),
@@ -28,7 +33,8 @@ class VehicleListItem extends StatelessWidget {
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (context) => CreateAgreementScreen(vehicle: vehicle),
+                      builder: (context) =>
+                          CreateAgreementScreen(vehicle: vehicle),
                     ),
                   );
                 },

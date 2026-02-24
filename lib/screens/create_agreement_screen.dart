@@ -34,7 +34,7 @@ class _CreateAgreementScreenState extends State<CreateAgreementScreen> {
 
       try {
         final agreement = Agreement(
-          id: '', 
+          id: '',
           vehicleId: widget.vehicle.id!,
           clientId: _selectedClient!.id!,
           startDate: _startDate,
@@ -46,7 +46,9 @@ class _CreateAgreementScreenState extends State<CreateAgreementScreen> {
           status: 'Active',
         );
 
-        await FirebaseFirestore.instance.collection('agreements').add(agreement.toFirestore());
+        await FirebaseFirestore.instance
+            .collection('agreements')
+            .add(agreement.toFirestore());
 
         await FirebaseFirestore.instance
             .collection('vehicles')
@@ -82,31 +84,38 @@ class _CreateAgreementScreenState extends State<CreateAgreementScreen> {
               child: SingleChildScrollView(
                 child: Column(
                   children: [
-                    Text('Vehicle: ${widget.vehicle.year} ${widget.vehicle.make} ${widget.vehicle.model}'),
+                    Text(
+                        'Vehicle: ${widget.vehicle.year} ${widget.vehicle.make} ${widget.vehicle.model}'),
                     const SizedBox(height: 16),
                     _buildClientDropdown(),
                     const SizedBox(height: 16),
                     _buildDatePickers(),
                     TextFormField(
                       controller: _initialMileageController,
-                      decoration: const InputDecoration(labelText: 'Initial Mileage'),
+                      decoration:
+                          const InputDecoration(labelText: 'Initial Mileage'),
                       keyboardType: TextInputType.number,
-                      validator: (value) => value!.isEmpty ? 'Enter mileage' : null,
+                      validator: (value) =>
+                          value!.isEmpty ? 'Enter mileage' : null,
                     ),
                     TextFormField(
                       controller: _initialFuelController,
-                      decoration: const InputDecoration(labelText: 'Initial Fuel Level (%)'),
+                      decoration: const InputDecoration(
+                          labelText: 'Initial Fuel Level (%)'),
                       keyboardType: TextInputType.number,
-                      validator: (value) => value!.isEmpty ? 'Enter fuel level' : null,
+                      validator: (value) =>
+                          value!.isEmpty ? 'Enter fuel level' : null,
                     ),
                     TextFormField(
                       controller: _termsController,
-                      decoration: const InputDecoration(labelText: 'Agreement Terms'),
+                      decoration:
+                          const InputDecoration(labelText: 'Agreement Terms'),
                       maxLines: 3,
                     ),
                     TextFormField(
                       controller: _insuranceController,
-                      decoration: const InputDecoration(labelText: 'Insurance Policy'),
+                      decoration:
+                          const InputDecoration(labelText: 'Insurance Policy'),
                     ),
                     const SizedBox(height: 20),
                     ElevatedButton(

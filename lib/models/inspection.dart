@@ -19,7 +19,8 @@ class Inspection {
     required this.notes,
   });
 
-  factory Inspection.fromFirestore(Map<String, dynamic> data, String documentId) {
+  factory Inspection.fromFirestore(
+      Map<String, dynamic> data, String documentId) {
     return Inspection(
       id: documentId,
       agreementId: data['agreementId'] ?? '',

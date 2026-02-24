@@ -24,7 +24,8 @@ class JournalEntry {
     this.metadata,
   });
 
-  factory JournalEntry.fromFirestore(Map<String, dynamic> data, String documentId) {
+  factory JournalEntry.fromFirestore(
+      Map<String, dynamic> data, String documentId) {
     return JournalEntry(
       id: documentId,
       companyId: data['companyId'] ?? '',

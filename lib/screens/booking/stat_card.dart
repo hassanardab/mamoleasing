@@ -6,7 +6,12 @@ class StatCard extends StatelessWidget {
   final IconData icon;
   final Color color;
 
-  const StatCard({super.key, required this.title, required this.value, required this.icon, required this.color});
+  const StatCard(
+      {super.key,
+      required this.title,
+      required this.value,
+      required this.icon,
+      required this.color});
 
   @override
   Widget build(BuildContext context) {
@@ -21,9 +26,16 @@ class StatCard extends StatelessWidget {
           children: <Widget>[
             Icon(icon, size: 32, color: color),
             const SizedBox(height: 8),
-            Text(title, textAlign: TextAlign.center, style: Theme.of(context).textTheme.bodySmall),
+            Text(title,
+                textAlign: TextAlign.center,
+                style: Theme.of(context).textTheme.bodySmall),
             const SizedBox(height: 4),
-            Text(value, textAlign: TextAlign.center, style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold)),
+            Text(value,
+                textAlign: TextAlign.center,
+                style: Theme.of(context)
+                    .textTheme
+                    .titleLarge
+                    ?.copyWith(fontWeight: FontWeight.bold)),
           ],
         ),
       ),

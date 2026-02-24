@@ -31,14 +31,19 @@ class EventsList extends StatelessWidget {
           padding: const EdgeInsets.fromLTRB(16.0, 16.0, 16.0, 8.0),
           child: Text(
             'Events for ${DateFormat.yMMMd().format(bookingProvider.selectedDate)}',
-            style: Theme.of(context).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.bold),
+            style: Theme.of(context)
+                .textTheme
+                .headlineSmall
+                ?.copyWith(fontWeight: FontWeight.bold),
           ),
         ),
         Expanded(
           child: bookingProvider.loading
               ? const Center(child: CircularProgressIndicator())
               : events.isEmpty
-                  ? Center(child: Text('No events found.', style: Theme.of(context).textTheme.bodyLarge))
+                  ? Center(
+                      child: Text('No events found.',
+                          style: Theme.of(context).textTheme.bodyLarge))
                   : ListView.builder(
                       padding: const EdgeInsets.all(8.0),
                       itemCount: events.length,
@@ -46,42 +51,60 @@ class EventsList extends StatelessWidget {
                         final event = events[index];
                         return Card(
                           elevation: 2.0,
-                          margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
-                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                          margin: const EdgeInsets.symmetric(
+                              horizontal: 8, vertical: 6),
+                          shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(10)),
                           child: InkWell(
                             onTap: () => showDialog(
                               context: context,
-                              builder: (context) => EventDetailsDialog(event: event),
+                              builder: (context) =>
+                                  EventDetailsDialog(event: event),
                             ),
                             child: Padding(
                               padding: const EdgeInsets.all(12.0),
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  Text(event.title, style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold)),
+                                  Text(event.title,
+                                      style: Theme.of(context)
+                                          .textTheme
+                                          .titleLarge
+                                          ?.copyWith(
+                                              fontWeight: FontWeight.bold)),
                                   const SizedBox(height: 8),
                                   Row(
                                     children: [
-                                      const Icon(Icons.person, size: 16, color: Colors.grey),
+                                      const Icon(Icons.person,
+                                          size: 16, color: Colors.grey),
                                       const SizedBox(width: 8),
-                                      Text(event.customerName, style: Theme.of(context).textTheme.titleMedium),
+                                      Text(event.customerName,
+                                          style: Theme.of(context)
+                                              .textTheme
+                                              .titleMedium),
                                     ],
                                   ),
                                   const SizedBox(height: 8),
                                   Row(
-                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
                                     children: [
-                                      _buildInfoChip(context, Icons.access_time, '${DateFormat.jm().format(event.startDate)} - ${DateFormat.jm().format(event.endDate)}'),
+                                      _buildInfoChip(context, Icons.access_time,
+                                          '${DateFormat.jm().format(event.startDate)} - ${DateFormat.jm().format(event.endDate)}'),
                                       _buildStatusChip(context, event.status),
                                     ],
                                   ),
                                   const Divider(height: 20),
                                   Row(
-                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
                                     children: [
-                                      _buildCurrencyInfo(context, 'Amount', event.amount, Colors.blueGrey),
-                                      _buildCurrencyInfo(context, 'Paid', event.paidAmount ?? 0, Colors.green),
-                                      _buildCurrencyInfo(context, 'Balance', event.balance, Colors.red),
+                                      _buildCurrencyInfo(context, 'Amount',
+                                          event.amount, Colors.blueGrey),
+                                      _buildCurrencyInfo(context, 'Paid',
+                                          event.paidAmount ?? 0, Colors.green),
+                                      _buildCurrencyInfo(context, 'Balance',
+                                          event.balance, Colors.red),
                                     ],
                                   ),
                                 ],
@@ -101,7 +124,8 @@ class EventsList extends StatelessWidget {
       avatar: Icon(Icons.circle, size: 12, color: _getStatusColor(status)),
       label: Text(
         status.name.toUpperCase(),
-        style: Theme.of(context).textTheme.labelMedium?.copyWith(fontWeight: FontWeight.bold, color: _getStatusColor(status)),
+        style: Theme.of(context).textTheme.labelMedium?.copyWith(
+            fontWeight: FontWeight.bold, color: _getStatusColor(status)),
       ),
       backgroundColor: _getStatusColor(status).withOpacity(0.1),
       padding: const EdgeInsets.symmetric(horizontal: 8),
@@ -117,21 +141,28 @@ class EventsList extends StatelessWidget {
       ],
     );
   }
-  
-  Widget _buildCurrencyInfo(BuildContext context, String label, double amount, Color color) {
+
+  Widget _buildCurrencyInfo(
+      BuildContext context, String label, double amount, Color color) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(label.toUpperCase(), style: Theme.of(context).textTheme.labelSmall?.copyWith(color: Colors.grey)),
+        Text(label.toUpperCase(),
+            style: Theme.of(context)
+                .textTheme
+                .labelSmall
+                ?.copyWith(color: Colors.grey)),
         const SizedBox(height: 2),
         Text(
           '\$${amount.toStringAsFixed(2)}',
-          style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold, color: color),
+          style: Theme.of(context)
+              .textTheme
+              .titleMedium
+              ?.copyWith(fontWeight: FontWeight.bold, color: color),
         ),
       ],
     );
   }
-
 
   Color _getStatusColor(BookingStatus status) {
     switch (status) {

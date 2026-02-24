@@ -25,7 +25,8 @@ class CompanyManagementScreen extends StatelessWidget {
                   subtitle: Text(company.id),
                   trailing: IconButton(
                     icon: const Icon(Icons.edit),
-                    onPressed: () => _showCompanyForm(context, company: company),
+                    onPressed: () =>
+                        _showCompanyForm(context, company: company),
                   ),
                 );
               },

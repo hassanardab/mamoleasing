@@ -22,15 +22,19 @@ class CalendarView extends StatelessWidget {
           firstDay: DateTime.utc(2010, 1, 1),
           lastDay: DateTime.utc(2030, 12, 31),
           focusedDay: bookingProvider.selectedDate,
-          selectedDayPredicate: (day) => isSameDay(bookingProvider.selectedDate, day),
+          selectedDayPredicate: (day) =>
+              isSameDay(bookingProvider.selectedDate, day),
           calendarFormat: CalendarFormat.month,
           startingDayOfWeek: StartingDayOfWeek.monday,
-          eventLoader: (day) => bookingProvider.events.where((event) => isSameDay(event.startDate, day)).toList(),
+          eventLoader: (day) => bookingProvider.events
+              .where((event) => isSameDay(event.startDate, day))
+              .toList(),
           onDaySelected: (selectedDay, focusedDay) {
             bookingProvider.selectDate(selectedDay);
           },
           onPageChanged: (focusedDay) {
-            bookingProvider.selectDate(focusedDay); // Update the provider when the month changes
+            bookingProvider.selectDate(
+                focusedDay); // Update the provider when the month changes
           },
           calendarStyle: CalendarStyle(
             outsideDaysVisible: false,
@@ -51,8 +55,10 @@ class CalendarView extends StatelessWidget {
             titleCentered: true,
             formatButtonVisible: false,
             titleTextStyle: theme.textTheme.titleLarge!,
-            leftChevronIcon: Icon(Icons.chevron_left, color: theme.primaryColor),
-            rightChevronIcon: Icon(Icons.chevron_right, color: theme.primaryColor),
+            leftChevronIcon:
+                Icon(Icons.chevron_left, color: theme.primaryColor),
+            rightChevronIcon:
+                Icon(Icons.chevron_right, color: theme.primaryColor),
           ),
           calendarBuilders: CalendarBuilders(
             markerBuilder: (context, date, events) {
@@ -69,7 +75,8 @@ class CalendarView extends StatelessWidget {
     );
   }
 
-  Widget _buildEventsMarker(BuildContext context, DateTime date, List<BookingEvent> events) {
+  Widget _buildEventsMarker(
+      BuildContext context, DateTime date, List<BookingEvent> events) {
     return AnimatedContainer(
       duration: const Duration(milliseconds: 300),
       decoration: BoxDecoration(
@@ -81,7 +88,8 @@ class CalendarView extends StatelessWidget {
       child: Center(
         child: Text(
           '${events.length}',
-          style: const TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.bold),
+          style: const TextStyle(
+              color: Colors.white, fontSize: 10, fontWeight: FontWeight.bold),
         ),
       ),
     );

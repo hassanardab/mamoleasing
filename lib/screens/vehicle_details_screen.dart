@@ -26,9 +26,11 @@ class VehicleDetailsScreen extends StatelessWidget {
               Text(
                 'Status: ${vehicle.status}',
                 style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                      color: vehicle.status == 'Available' ? Colors.green : Colors.orange,
+                      color: vehicle.status == 'Available'
+                          ? Colors.green
+                          : Colors.orange,
                       fontStyle: FontStyle.italic,
-                ),
+                    ),
               ),
               const SizedBox(height: 20),
               Text(
@@ -64,13 +66,15 @@ class VehicleDetailsScreen extends StatelessWidget {
                                 loadingBuilder: (context, child, progress) {
                                   return progress == null
                                       ? child
-                                      : const Center(child: CircularProgressIndicator());
+                                      : const Center(
+                                          child: CircularProgressIndicator());
                                 },
                                 errorBuilder: (context, error, stackTrace) {
                                   return Container(
                                     width: 250,
                                     color: Colors.grey[300],
-                                    child: const Icon(Icons.error, color: Colors.red),
+                                    child: const Icon(Icons.error,
+                                        color: Colors.red),
                                   );
                                 },
                               ),

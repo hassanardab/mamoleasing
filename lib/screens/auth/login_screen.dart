@@ -27,20 +27,24 @@ class _LoginScreenState extends State<LoginScreen> {
               TextFormField(
                 controller: _emailController,
                 decoration: const InputDecoration(labelText: 'Email'),
-                validator: (value) => (value?.isEmpty ?? true) ? 'Please enter your email' : null,
+                validator: (value) =>
+                    (value?.isEmpty ?? true) ? 'Please enter your email' : null,
               ),
               TextFormField(
                 controller: _passwordController,
                 decoration: const InputDecoration(labelText: 'Password'),
                 obscureText: true,
-                validator: (value) => (value?.isEmpty ?? true) ? 'Please enter your password' : null,
+                validator: (value) => (value?.isEmpty ?? true)
+                    ? 'Please enter your password'
+                    : null,
               ),
               const SizedBox(height: 20),
               ElevatedButton(
                 onPressed: () {
                   if (_formKey.currentState!.validate()) {
-                    Provider.of<AppProvider>(context, listen: false).signInWithEmailAndPassword(
-                      _emailController.text, 
+                    Provider.of<AppProvider>(context, listen: false)
+                        .signInWithEmailAndPassword(
+                      _emailController.text,
                       _passwordController.text,
                     );
                   }
@@ -48,9 +52,8 @@ class _LoginScreenState extends State<LoginScreen> {
                 child: const Text('Login'),
               ),
               TextButton(
-                onPressed: () => Navigator.of(context).pushNamed('/signup'), 
-                child: const Text('Don\'t have an account? Sign up')
-              ),
+                  onPressed: () => Navigator.of(context).pushNamed('/signup'),
+                  child: const Text('Don\'t have an account? Sign up')),
             ],
           ),
         ),

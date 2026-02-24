@@ -35,7 +35,8 @@ class _VehicleInventoryScreenState extends State<VehicleInventoryScreen> {
                 icon: const Icon(Icons.apps),
                 tooltip: 'Switch Module',
                 onPressed: () {
-                  appProvider.selectModule(''); // Logic to trigger redirect in router
+                  appProvider
+                      .selectModule(''); // Logic to trigger redirect in router
                 },
               ),
               IconButton(
@@ -58,7 +59,8 @@ class _VehicleInventoryScreenState extends State<VehicleInventoryScreen> {
           ),
           floatingActionButton: _shouldShowFAB(_selectedIndex, moduleId)
               ? FloatingActionButton(
-                  onPressed: () => _handleFABAction(context, _selectedIndex, moduleId),
+                  onPressed: () =>
+                      _handleFABAction(context, _selectedIndex, moduleId),
                   child: const Icon(Icons.add),
                 )
               : null,
@@ -116,9 +118,9 @@ class _VehicleInventoryScreenState extends State<VehicleInventoryScreen> {
 
   void _handleFABAction(BuildContext context, int index, String? moduleId) {
     if (moduleId == 'booking') {
-       // Future: Navigate to create booking
+      // Future: Navigate to create booking
     } else {
-       context.go('/add-vehicle');
+      context.go('/add-vehicle');
     }
   }
 
@@ -126,17 +128,25 @@ class _VehicleInventoryScreenState extends State<VehicleInventoryScreen> {
     final moduleId = appProvider.selectedModuleId;
     if (moduleId == 'booking') {
       switch (index) {
-        case 0: return 'Schedule';
-        case 1: return 'All Bookings';
-        case 2: return 'Clients';
-        default: return 'Booking System';
+        case 0:
+          return 'Schedule';
+        case 1:
+          return 'All Bookings';
+        case 2:
+          return 'Clients';
+        default:
+          return 'Booking System';
       }
     }
     switch (index) {
-      case 0: return appProvider.selectedCompany?.name ?? 'Inventory';
-      case 1: return 'Active Rentals';
-      case 2: return 'Client Management';
-      default: return 'Car Rental';
+      case 0:
+        return appProvider.selectedCompany?.name ?? 'Inventory';
+      case 1:
+        return 'Active Rentals';
+      case 2:
+        return 'Client Management';
+      default:
+        return 'Car Rental';
     }
   }
 
@@ -149,35 +159,51 @@ class _VehicleInventoryScreenState extends State<VehicleInventoryScreen> {
           UserAccountsDrawerHeader(
             accountName: Text(appProvider.userData?.name ?? 'User'),
             accountEmail: Text(appProvider.userData?.email ?? ''),
-            currentAccountPicture: const CircleAvatar(child: Icon(Icons.person)),
+            currentAccountPicture:
+                const CircleAvatar(child: Icon(Icons.person)),
           ),
           if (moduleId == 'booking') ...[
             ListTile(
               leading: const Icon(Icons.schedule),
               title: const Text('My Schedule'),
-              onTap: () { Navigator.pop(context); setState(() => _selectedIndex = 0); },
+              onTap: () {
+                Navigator.pop(context);
+                setState(() => _selectedIndex = 0);
+              },
             ),
             ListTile(
               leading: const Icon(Icons.book_online),
               title: const Text('Manage Bookings'),
-              onTap: () { Navigator.pop(context); setState(() => _selectedIndex = 1); },
+              onTap: () {
+                Navigator.pop(context);
+                setState(() => _selectedIndex = 1);
+              },
             ),
           ] else ...[
             ListTile(
               leading: const Icon(Icons.directions_car),
               title: const Text('Car Inventory'),
-              onTap: () { Navigator.pop(context); setState(() => _selectedIndex = 0); },
+              onTap: () {
+                Navigator.pop(context);
+                setState(() => _selectedIndex = 0);
+              },
             ),
             ListTile(
               leading: const Icon(Icons.article),
               title: const Text('Rental Agreements'),
-              onTap: () { Navigator.pop(context); context.go('/agreements'); },
+              onTap: () {
+                Navigator.pop(context);
+                context.go('/agreements');
+              },
             ),
           ],
           ListTile(
             leading: const Icon(Icons.people),
             title: const Text('Clients'),
-            onTap: () { Navigator.pop(context); setState(() => _selectedIndex = 2); },
+            onTap: () {
+              Navigator.pop(context);
+              setState(() => _selectedIndex = 2);
+            },
           ),
           const Divider(),
           ListTile(
@@ -207,11 +233,16 @@ class _VehicleInventoryScreenState extends State<VehicleInventoryScreen> {
           children: [
             const Icon(Icons.error_outline, color: Colors.red, size: 60),
             const SizedBox(height: 16),
-            Text('Oops! Something went wrong.', style: Theme.of(context).textTheme.headlineSmall),
+            Text('Oops! Something went wrong.',
+                style: Theme.of(context).textTheme.headlineSmall),
             const SizedBox(height: 8),
-            Text(appProvider.errorMessage!, textAlign: TextAlign.center, style: const TextStyle(color: Colors.grey)),
+            Text(appProvider.errorMessage!,
+                textAlign: TextAlign.center,
+                style: const TextStyle(color: Colors.grey)),
             const SizedBox(height: 24),
-            ElevatedButton(onPressed: () => appProvider.signOut(), child: const Text('Sign Out')),
+            ElevatedButton(
+                onPressed: () => appProvider.signOut(),
+                child: const Text('Sign Out')),
           ],
         ),
       ),
@@ -223,24 +254,34 @@ class _VehicleInventoryScreenState extends State<VehicleInventoryScreen> {
 
     if (moduleId == 'booking') {
       switch (index) {
-        case 0: return const Center(child: Text('Calendar/Schedule View'));
-        case 1: return const Center(child: Text('List of All Bookings'));
-        case 2: return const Center(child: Text('Clients List'));
-        default: return const Center(child: Text('Module Error'));
+        case 0:
+          return const Center(child: Text('Calendar/Schedule View'));
+        case 1:
+          return const Center(child: Text('List of All Bookings'));
+        case 2:
+          return const Center(child: Text('Clients List'));
+        default:
+          return const Center(child: Text('Module Error'));
       }
     }
 
     // Car Rental Logic
     switch (index) {
-      case 0: return _buildInventoryList(context, appProvider);
-      case 1: return const Center(child: Text('Active Agreements List'));
-      case 2: return const Center(child: Text('Clients List'));
-      default: return const Center(child: Text('Module Error'));
+      case 0:
+        return _buildInventoryList(context, appProvider);
+      case 1:
+        return const Center(child: Text('Active Agreements List'));
+      case 2:
+        return const Center(child: Text('Clients List'));
+      default:
+        return const Center(child: Text('Module Error'));
     }
   }
 
   Widget _buildInventoryList(BuildContext context, AppProvider appProvider) {
-    if (appProvider.selectedCompany == null) return const Center(child: Text('No company selected.'));
+    if (appProvider.selectedCompany == null) {
+      return const Center(child: Text('No company selected.'));
+    }
 
     return StreamBuilder<QuerySnapshot>(
       stream: FirebaseFirestore.instance
@@ -249,17 +290,25 @@ class _VehicleInventoryScreenState extends State<VehicleInventoryScreen> {
           .collection('vehicles')
           .snapshots(),
       builder: (context, snapshot) {
-        if (snapshot.connectionState == ConnectionState.waiting) return const Center(child: CircularProgressIndicator());
-        if (snapshot.hasError) return Center(child: Text('Error: ${snapshot.error}'));
-        if (!snapshot.hasData || snapshot.data!.docs.isEmpty) return const Center(child: Text('No vehicles found.'));
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const Center(child: CircularProgressIndicator());
+        }
+        if (snapshot.hasError) {
+          return Center(child: Text('Error: ${snapshot.error}'));
+        }
+        if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
+          return const Center(child: Text('No vehicles found.'));
+        }
 
         final vehicles = snapshot.data!.docs
-            .map((doc) => Vehicle.fromFirestore(doc.data() as Map<String, dynamic>, doc.id))
+            .map((doc) => Vehicle.fromFirestore(
+                doc.data() as Map<String, dynamic>, doc.id))
             .toList();
 
         return ListView.builder(
           itemCount: vehicles.length,
-          itemBuilder: (context, index) => VehicleListItem(vehicle: vehicles[index]),
+          itemBuilder: (context, index) =>
+              VehicleListItem(vehicle: vehicles[index]),
         );
       },
     );

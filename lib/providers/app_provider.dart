@@ -113,6 +113,7 @@ class AppProvider with ChangeNotifier {
 
   void _listenToAuthChanges() {
     _authSubscription = _auth.authStateChanges().listen((User? user) async {
+      developer.log("Auth state changed: ${user?.uid}");
       _isLoading = true;
       _errorMessage = null;
       notifyListeners();
@@ -135,8 +136,11 @@ class AppProvider with ChangeNotifier {
   }
 
   void _listenToUserDoc(String userId) {
-    _userDocSubscription =
-        _firestore.collection('users').doc(userId).snapshots().listen((doc) async {
+    _userDocSubscription = _firestore
+        .collection('users')
+        .doc(userId)
+        .snapshots()
+        .listen((doc) async {
       if (doc.exists) {
         _userData = UserData.fromFirestore(doc);
         await _fetchCompanies();
@@ -184,17 +188,17 @@ class AppProvider with ChangeNotifier {
           .where(FieldPath.documentId, whereIn: _userData!.companyIds)
           .get();
 
-      _userCompanies = companyQuery.docs.map((doc) => Company.fromFirestore(doc)).toList();
+      _userCompanies =
+          companyQuery.docs.map((doc) => Company.fromFirestore(doc)).toList();
 
+      // Do NOT auto-select if nothing is selected. Let the user choose.
       if (_selectedCompany != null) {
-        bool stillExists = _userCompanies.any((c) => c.id == _selectedCompany!.id);
-        if (stillExists) {
-          _selectedCompany = _userCompanies.firstWhere((c) => c.id == _selectedCompany!.id);
-        } else {
-          _selectedCompany = _userCompanies.isNotEmpty ? _userCompanies.first : null;
+        bool stillExists =
+            _userCompanies.any((c) => c.id == _selectedCompany!.id);
+        if (!stillExists) {
+          _selectedCompany = null;
+          _selectedModuleId = null;
         }
-      } else {
-        _selectedCompany = _userCompanies.isNotEmpty ? _userCompanies.first : null;
       }
     } catch (e) {
       _errorMessage = "Failed to load companies: $e";
@@ -205,22 +209,15 @@ class AppProvider with ChangeNotifier {
   }
 
   void selectCompany(Company company) {
-    if (_selectedCompany?.id != company.id) {
-      _selectedCompany = company;
-      if (_selectedModuleId != null && !company.modulars.contains(_selectedModuleId)) {
-        _selectedModuleId = null;
-      }
-      notifyListeners();
-    }
-  }
-
-  void selectModule(String? moduleId) {
-    _selectedModuleId = moduleId;
+    developer.log("Selecting company: ${company.name}");
+    _selectedCompany = company;
+    _selectedModuleId = null; // Reset module when company changes
     notifyListeners();
   }
 
-  void setSelectedModuleId(String? id) {
-    _selectedModuleId = id;
+  void selectModule(String? moduleId) {
+    developer.log("Selecting module: $moduleId");
+    _selectedModuleId = moduleId;
     notifyListeners();
   }
 
@@ -245,13 +242,14 @@ class AppProvider with ChangeNotifier {
     }
   }
 
-  Future<bool> signUpWithEmailAndPassword(String email, String password, {String name = 'New User'}) async {
+  Future<bool> signUpWithEmailAndPassword(String email, String password,
+      {String name = 'New User'}) async {
     _isLoading = true;
     _errorMessage = null;
     notifyListeners();
     try {
-      UserCredential userCredential =
-          await _auth.createUserWithEmailAndPassword(email: email, password: password);
+      UserCredential userCredential = await _auth
+          .createUserWithEmailAndPassword(email: email, password: password);
 
       if (userCredential.user != null) {
         await _firestore.collection('users').doc(userCredential.user!.uid).set({
@@ -288,7 +286,8 @@ class AppProvider with ChangeNotifier {
         return false;
       }
 
-      final GoogleSignInAuthentication googleAuth = await googleUser.authentication;
+      final GoogleSignInAuthentication googleAuth =
+          await googleUser.authentication;
       final AuthCredential credential = GoogleAuthProvider.credential(
         accessToken: googleAuth.accessToken,
         idToken: googleAuth.idToken,
@@ -310,6 +309,10 @@ class AppProvider with ChangeNotifier {
     try {
       await _googleSignIn.signOut();
       await _auth.signOut();
+      _selectedCompany = null;
+      _selectedModuleId = null;
+      _userCompanies = [];
+      _userData = null;
     } catch (e) {
       developer.log("Error signing out", error: e);
     }
@@ -336,7 +339,8 @@ class AppProvider with ChangeNotifier {
     }
   }
 
-  Future<void> updateCompany(String companyId, {required String name, String? logoUrl}) async {
+  Future<void> updateCompany(String companyId,
+      {required String name, String? logoUrl}) async {
     try {
       await _firestore.collection('companies').doc(companyId).update({
         'name': name,

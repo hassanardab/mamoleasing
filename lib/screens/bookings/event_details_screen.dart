@@ -38,8 +38,7 @@ class EventDetailsScreen extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             _buildDetailRow('Customer:', event.customerName),
-            _buildDetailRow(
-                'Dates:',
+            _buildDetailRow('Dates:',
                 '${DateFormat.yMd().format(event.startDate)} - ${DateFormat.yMd().format(event.endDate)}'),
             _buildDetailRow('Status:', event.status.name),
             _buildDetailRow('Amount:', '${event.amount} ${event.currency}'),

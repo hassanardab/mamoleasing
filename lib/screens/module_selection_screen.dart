@@ -39,9 +39,11 @@ class ModuleSelectionScreen extends StatelessWidget {
         children: [
           const Icon(Icons.apps_outage, size: 80, color: Colors.grey),
           const SizedBox(height: 24),
-          const Text('No Modules Available', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+          const Text('No Modules Available',
+              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
           const SizedBox(height: 16),
-          const Text('This company doesn\'t have any enabled modulars.', textAlign: TextAlign.center),
+          const Text('This company doesn\'t have any enabled modulars.',
+              textAlign: TextAlign.center),
           const SizedBox(height: 32),
           if (appProvider.userCompanies.length > 1)
             ElevatedButton(
@@ -55,7 +57,8 @@ class ModuleSelectionScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildModuleList(BuildContext context, AppProvider appProvider, List<String> modulars) {
+  Widget _buildModuleList(
+      BuildContext context, AppProvider appProvider, List<String> modulars) {
     return ListView.builder(
       padding: const EdgeInsets.all(16),
       itemCount: modulars.length,
@@ -64,7 +67,8 @@ class ModuleSelectionScreen extends StatelessWidget {
         return Card(
           elevation: 4,
           margin: const EdgeInsets.only(bottom: 16),
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
           child: ListTile(
             contentPadding: const EdgeInsets.all(16),
             leading: _getModuleIcon(moduleId),

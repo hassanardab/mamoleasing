@@ -20,7 +20,9 @@ class BookingProvider with ChangeNotifier {
   String get searchQuery => _searchQuery;
 
   List<BookingEvent> get filteredEvents {
-    final eventsForDate = _events.where((event) => isSameDay(event.startDate, _selectedDate)).toList();
+    final eventsForDate = _events
+        .where((event) => isSameDay(event.startDate, _selectedDate))
+        .toList();
     if (_searchQuery.isEmpty) return eventsForDate;
     final query = _searchQuery.toLowerCase();
     return eventsForDate
@@ -105,7 +107,6 @@ class BookingProvider with ChangeNotifier {
         .doc(eventId)
         .delete();
   }
-
 
   void selectDate(DateTime date) {
     _selectedDate = date;

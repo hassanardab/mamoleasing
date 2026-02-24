@@ -17,8 +17,10 @@ final ThemeData appTheme = ThemeData(
   ),
   textTheme: GoogleFonts.latoTextTheme(
     const TextTheme(
-      displayLarge: TextStyle(fontSize: 28, fontWeight: FontWeight.bold, color: textColor),
-      titleLarge: TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: textColor),
+      displayLarge: TextStyle(
+          fontSize: 28, fontWeight: FontWeight.bold, color: textColor),
+      titleLarge: TextStyle(
+          fontSize: 22, fontWeight: FontWeight.bold, color: textColor),
       bodyLarge: TextStyle(fontSize: 16, color: textColor),
       bodyMedium: TextStyle(fontSize: 14, color: Colors.black54),
     ),

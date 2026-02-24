@@ -54,7 +54,6 @@ class _ManageClientsScreenState extends State<ManageClientsScreen> {
         _nameController.clear();
         _licenseController.clear();
         _contactController.clear();
-
       } catch (e) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('Failed to add client: $e')),
@@ -89,13 +88,17 @@ class _ManageClientsScreenState extends State<ManageClientsScreen> {
                   ),
                   TextFormField(
                     controller: _licenseController,
-                    decoration: const InputDecoration(labelText: 'Driver License ID'),
-                    validator: (value) => value!.isEmpty ? 'Enter license ID' : null,
+                    decoration:
+                        const InputDecoration(labelText: 'Driver License ID'),
+                    validator: (value) =>
+                        value!.isEmpty ? 'Enter license ID' : null,
                   ),
                   TextFormField(
                     controller: _contactController,
-                    decoration: const InputDecoration(labelText: 'Contact Info'),
-                    validator: (value) => value!.isEmpty ? 'Enter contact info' : null,
+                    decoration:
+                        const InputDecoration(labelText: 'Contact Info'),
+                    validator: (value) =>
+                        value!.isEmpty ? 'Enter contact info' : null,
                   ),
                   const SizedBox(height: 20),
                   ElevatedButton(
@@ -111,34 +114,34 @@ class _ManageClientsScreenState extends State<ManageClientsScreen> {
             child: companyId == null
                 ? const Center(child: Text("No company selected"))
                 : StreamBuilder<QuerySnapshot>(
-              stream: FirebaseFirestore.instance
-                  .collection('companies')
-                  .doc(companyId)
-                  .collection('clients')
-                  .snapshots(),
-              builder: (context, snapshot) {
-                if (snapshot.connectionState == ConnectionState.waiting) {
-                  return const Center(child: CircularProgressIndicator());
-                }
-                if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
-                  return const Center(child: Text('No clients found.'));
-                }
-                final clients = snapshot.data!.docs.map((doc) {
-                  return Client.fromFirestore(doc);
-                }).toList();
+                    stream: FirebaseFirestore.instance
+                        .collection('companies')
+                        .doc(companyId)
+                        .collection('clients')
+                        .snapshots(),
+                    builder: (context, snapshot) {
+                      if (snapshot.connectionState == ConnectionState.waiting) {
+                        return const Center(child: CircularProgressIndicator());
+                      }
+                      if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
+                        return const Center(child: Text('No clients found.'));
+                      }
+                      final clients = snapshot.data!.docs.map((doc) {
+                        return Client.fromFirestore(doc);
+                      }).toList();
 
-                return ListView.builder(
-                  itemCount: clients.length,
-                  itemBuilder: (context, index) {
-                    final client = clients[index];
-                    return ListTile(
-                      title: Text(client.name),
-                      subtitle: Text(client.driverLicenseId ?? 'N/A'),
-                    );
-                  },
-                );
-              },
-            ),
+                      return ListView.builder(
+                        itemCount: clients.length,
+                        itemBuilder: (context, index) {
+                          final client = clients[index];
+                          return ListTile(
+                            title: Text(client.name),
+                            subtitle: Text(client.driverLicenseId ?? 'N/A'),
+                          );
+                        },
+                      );
+                    },
+                  ),
           ),
         ],
       ),

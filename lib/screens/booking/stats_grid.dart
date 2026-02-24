@@ -15,9 +15,12 @@ class StatsGrid extends StatelessWidget {
           builder: (context, bookingProvider, child) {
             final events = bookingProvider.events;
             final totalBookings = events.length;
-            final totalRevenue = events.fold<double>(0, (sum, event) => sum + event.amount);
-            final totalPaid = events.fold<double>(0, (sum, event) => sum + (event.paidAmount ?? 0));
-            final upcomingEvents = events.where((e) => e.startDate.isAfter(DateTime.now())).length;
+            final totalRevenue =
+                events.fold<double>(0, (sum, event) => sum + event.amount);
+            final totalPaid = events.fold<double>(
+                0, (sum, event) => sum + (event.paidAmount ?? 0));
+            final upcomingEvents =
+                events.where((e) => e.startDate.isAfter(DateTime.now())).length;
 
             return GridView.count(
               crossAxisCount: crossAxisCount,

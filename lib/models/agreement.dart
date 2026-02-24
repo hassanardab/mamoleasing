@@ -25,7 +25,8 @@ class Agreement {
     required this.status,
   });
 
-  factory Agreement.fromFirestore(Map<String, dynamic> data, String documentId) {
+  factory Agreement.fromFirestore(
+      Map<String, dynamic> data, String documentId) {
     return Agreement(
       id: documentId,
       vehicleId: data['vehicleId'] ?? '',

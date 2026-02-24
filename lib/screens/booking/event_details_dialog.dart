@@ -45,13 +45,20 @@ class EventDetailsDialog extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Expanded(
-          child: Text(event.title, style: Theme.of(context).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.bold)),
+          child: Text(event.title,
+              style: Theme.of(context)
+                  .textTheme
+                  .headlineSmall
+                  ?.copyWith(fontWeight: FontWeight.bold)),
         ),
         Chip(
-          avatar: Icon(Icons.circle, size: 12, color: getStatusColor(event.status)),
+          avatar:
+              Icon(Icons.circle, size: 12, color: getStatusColor(event.status)),
           label: Text(
             event.status.name.toUpperCase(),
-            style: Theme.of(context).textTheme.labelMedium?.copyWith(fontWeight: FontWeight.bold, color: getStatusColor(event.status)),
+            style: Theme.of(context).textTheme.labelMedium?.copyWith(
+                fontWeight: FontWeight.bold,
+                color: getStatusColor(event.status)),
           ),
           backgroundColor: getStatusColor(event.status).withOpacity(0.1),
         ),
@@ -63,9 +70,14 @@ class EventDetailsDialog extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text('CUSTOMER', style: Theme.of(context).textTheme.labelMedium?.copyWith(color: Colors.grey)),
+        Text('CUSTOMER',
+            style: Theme.of(context)
+                .textTheme
+                .labelMedium
+                ?.copyWith(color: Colors.grey)),
         const SizedBox(height: 8),
-        _buildInfoRow(context, Icons.person, event.customerName, style: Theme.of(context).textTheme.titleMedium),
+        _buildInfoRow(context, Icons.person, event.customerName,
+            style: Theme.of(context).textTheme.titleMedium),
         if (event.customerEmail != null && event.customerEmail!.isNotEmpty)
           Padding(
             padding: const EdgeInsets.only(top: 8.0),
@@ -84,16 +96,22 @@ class EventDetailsDialog extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text('TIMING', style: Theme.of(context).textTheme.labelMedium?.copyWith(color: Colors.grey)),
+        Text('TIMING',
+            style: Theme.of(context)
+                .textTheme
+                .labelMedium
+                ?.copyWith(color: Colors.grey)),
         const SizedBox(height: 8),
-        _buildInfoRow(context, Icons.calendar_today, 'From: ${DateFormat.yMMMd().add_jm().format(event.startDate)}'),
+        _buildInfoRow(context, Icons.calendar_today,
+            'From: ${DateFormat.yMMMd().add_jm().format(event.startDate)}'),
         const SizedBox(height: 8),
-        _buildInfoRow(context, Icons.calendar_today, 'To:      ${DateFormat.yMMMd().add_jm().format(event.endDate)}'),
+        _buildInfoRow(context, Icons.calendar_today,
+            'To:      ${DateFormat.yMMMd().add_jm().format(event.endDate)}'),
         if (event.place != null && event.place!.isNotEmpty)
-        Padding(
-          padding: const EdgeInsets.only(top: 8.0),
-          child: _buildInfoRow(context, Icons.location_on, event.place!),
-        ),
+          Padding(
+            padding: const EdgeInsets.only(top: 8.0),
+            child: _buildInfoRow(context, Icons.location_on, event.place!),
+          ),
       ],
     );
   }
@@ -102,8 +120,10 @@ class EventDetailsDialog extends StatelessWidget {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        _buildCurrencyInfo(context, 'Amount', event.amount, Theme.of(context).colorScheme.onSurface),
-        _buildCurrencyInfo(context, 'Paid', event.paidAmount ?? 0, Colors.green),
+        _buildCurrencyInfo(context, 'Amount', event.amount,
+            Theme.of(context).colorScheme.onSurface),
+        _buildCurrencyInfo(
+            context, 'Paid', event.paidAmount ?? 0, Colors.green),
         _buildCurrencyInfo(context, 'Balance', event.balance, Colors.red),
       ],
     );
@@ -122,7 +142,9 @@ class EventDetailsDialog extends StatelessWidget {
         ElevatedButton.icon(
           icon: const Icon(Icons.edit),
           label: const Text('Edit'),
-          style: ElevatedButton.styleFrom(backgroundColor: Theme.of(context).primaryColor, foregroundColor: Colors.white),
+          style: ElevatedButton.styleFrom(
+              backgroundColor: Theme.of(context).primaryColor,
+              foregroundColor: Colors.white),
           onPressed: () {
             Navigator.of(context).pop();
             showDialog(
@@ -135,7 +157,8 @@ class EventDetailsDialog extends StatelessWidget {
     );
   }
 
-  Widget _buildInfoRow(BuildContext context, IconData icon, String text, {TextStyle? style}) {
+  Widget _buildInfoRow(BuildContext context, IconData icon, String text,
+      {TextStyle? style}) {
     return Row(
       children: [
         Icon(icon, size: 16, color: Colors.grey[600]),
@@ -145,15 +168,23 @@ class EventDetailsDialog extends StatelessWidget {
     );
   }
 
-  Widget _buildCurrencyInfo(BuildContext context, String label, double amount, Color color) {
+  Widget _buildCurrencyInfo(
+      BuildContext context, String label, double amount, Color color) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(label.toUpperCase(), style: Theme.of(context).textTheme.labelSmall?.copyWith(color: Colors.grey)),
+        Text(label.toUpperCase(),
+            style: Theme.of(context)
+                .textTheme
+                .labelSmall
+                ?.copyWith(color: Colors.grey)),
         const SizedBox(height: 4),
         Text(
           '\$${amount.toStringAsFixed(2)}',
-          style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold, color: color),
+          style: Theme.of(context)
+              .textTheme
+              .titleMedium
+              ?.copyWith(fontWeight: FontWeight.bold, color: color),
         ),
       ],
     );
@@ -165,7 +196,8 @@ class EventDetailsDialog extends StatelessWidget {
 
     if (companyId == null || companyId.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Cannot delete event: Company ID not found.')),
+        const SnackBar(
+            content: Text('Cannot delete event: Company ID not found.')),
       );
       return;
     }
@@ -174,23 +206,31 @@ class EventDetailsDialog extends StatelessWidget {
       context: context,
       builder: (ctx) => AlertDialog(
         title: const Text('Are you sure?'),
-        content: const Text('Do you want to delete this event? This action cannot be undone.'),
+        content: const Text(
+            'Do you want to delete this event? This action cannot be undone.'),
         actions: <Widget>[
-          TextButton(child: const Text('No'), onPressed: () => Navigator.of(ctx).pop()),
+          TextButton(
+              child: const Text('No'),
+              onPressed: () => Navigator.of(ctx).pop()),
           TextButton(
             child: const Text('Yes', style: TextStyle(color: Colors.red)),
             onPressed: () async {
               try {
-                await Provider.of<BookingProvider>(context, listen: false).deleteEvent(companyId, event.id!);
+                await Provider.of<BookingProvider>(context, listen: false)
+                    .deleteEvent(companyId, event.id!);
                 Navigator.of(ctx).pop(); // Close confirmation dialog
                 Navigator.of(context).pop(); // Close details dialog
                 ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('Event deleted successfully.'), backgroundColor: Colors.green),
+                  const SnackBar(
+                      content: Text('Event deleted successfully.'),
+                      backgroundColor: Colors.green),
                 );
               } catch (e) {
                 Navigator.of(ctx).pop();
                 ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text('Failed to delete event: $e'), backgroundColor: Colors.red),
+                  SnackBar(
+                      content: Text('Failed to delete event: $e'),
+                      backgroundColor: Colors.red),
                 );
               }
             },

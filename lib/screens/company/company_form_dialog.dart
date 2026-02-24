@@ -35,7 +35,8 @@ class _CompanyFormDialogState extends State<CompanyFormDialog> {
             TextFormField(
               initialValue: _name,
               decoration: const InputDecoration(labelText: 'Company Name'),
-              validator: (value) => value!.isEmpty ? 'Please enter a name' : null,
+              validator: (value) =>
+                  value!.isEmpty ? 'Please enter a name' : null,
               onSaved: (value) => _name = value!,
             ),
             TextFormField(
@@ -66,7 +67,8 @@ class _CompanyFormDialogState extends State<CompanyFormDialog> {
       if (widget.company == null) {
         appProvider.addCompany(name: _name, logoUrl: _logoUrl);
       } else {
-        appProvider.updateCompany(widget.company!.id, name: _name, logoUrl: _logoUrl);
+        appProvider.updateCompany(widget.company!.id,
+            name: _name, logoUrl: _logoUrl);
       }
       Navigator.of(context).pop();
     }

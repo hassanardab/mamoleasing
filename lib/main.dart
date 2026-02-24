@@ -26,7 +26,7 @@ class MyApp extends StatelessWidget {
         ChangeNotifierProvider(create: (_) => AppProvider()),
         ChangeNotifierProxyProvider<AppProvider, BookingProvider>(
           create: (_) => BookingProvider(),
-          update: (_, appProvider, bookingProvider) => 
+          update: (_, appProvider, bookingProvider) =>
               bookingProvider!..updateCompanyId(appProvider.selectedModuleId),
         ),
       ],

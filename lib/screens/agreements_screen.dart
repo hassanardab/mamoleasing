@@ -17,55 +17,61 @@ class AgreementsScreen extends StatelessWidget {
 
     return Scaffold(
       appBar: AppBar(title: const Text('Rental Agreements')),
-      body: companyId == null 
+      body: companyId == null
           ? const Center(child: Text("No company selected"))
           : StreamBuilder<QuerySnapshot>(
-        stream: FirebaseFirestore.instance
-            .collection('companies')
-            .doc(companyId)
-            .collection('agreements')
-            .orderBy('startDate', descending: true)
-            .snapshots(),
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Center(child: CircularProgressIndicator());
-          }
-          if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
-            return const Center(child: Text('No agreements found.'));
-          }
+              stream: FirebaseFirestore.instance
+                  .collection('companies')
+                  .doc(companyId)
+                  .collection('agreements')
+                  .orderBy('startDate', descending: true)
+                  .snapshots(),
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return const Center(child: CircularProgressIndicator());
+                }
+                if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
+                  return const Center(child: Text('No agreements found.'));
+                }
 
-          final agreements = snapshot.data!.docs.map((doc) {
-            return Agreement.fromFirestore(doc.data() as Map<String, dynamic>, doc.id);
-          }).toList();
+                final agreements = snapshot.data!.docs.map((doc) {
+                  return Agreement.fromFirestore(
+                      doc.data() as Map<String, dynamic>, doc.id);
+                }).toList();
 
-          return ListView.builder(
-            itemCount: agreements.length,
-            itemBuilder: (context, index) {
-              final agreement = agreements[index];
-              return Card(
-                margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                child: ListTile(
-                  title: Text('Agreement #${agreement.id.substring(0, 5)}...'),
-                  subtitle: Text(
-                      'From: ${DateFormat.yMd().format(agreement.startDate)} to ${DateFormat.yMd().format(agreement.endDate)}'),
-                  trailing: Text(
-                    agreement.status,
-                    style: TextStyle(color: _getStatusColor(agreement.status), fontWeight: FontWeight.bold),
-                  ),
-                  onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => AgreementDetailsScreen(agreement: agreement),
+                return ListView.builder(
+                  itemCount: agreements.length,
+                  itemBuilder: (context, index) {
+                    final agreement = agreements[index];
+                    return Card(
+                      margin: const EdgeInsets.symmetric(
+                          horizontal: 16, vertical: 8),
+                      child: ListTile(
+                        title: Text(
+                            'Agreement #${agreement.id.substring(0, 5)}...'),
+                        subtitle: Text(
+                            'From: ${DateFormat.yMd().format(agreement.startDate)} to ${DateFormat.yMd().format(agreement.endDate)}'),
+                        trailing: Text(
+                          agreement.status,
+                          style: TextStyle(
+                              color: _getStatusColor(agreement.status),
+                              fontWeight: FontWeight.bold),
+                        ),
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) =>
+                                  AgreementDetailsScreen(agreement: agreement),
+                            ),
+                          );
+                        },
                       ),
                     );
                   },
-                ),
-              );
-            },
-          );
-        },
-      ),
+                );
+              },
+            ),
     );
   }
 

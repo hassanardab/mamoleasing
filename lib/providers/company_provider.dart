@@ -1,4 +1,3 @@
-
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -39,20 +38,23 @@ class CompanyProvider with ChangeNotifier {
     notifyListeners();
 
     try {
-      DocumentSnapshot userDoc = await _firestore.collection('users').doc(user.uid).get();
+      DocumentSnapshot userDoc =
+          await _firestore.collection('users').doc(user.uid).get();
       if (userDoc.exists) {
-        List<String> companyIds = List<String>.from((userDoc.data() as Map<String, dynamic>)['companyIds'] ?? []);
-        
+        List<String> companyIds = List<String>.from(
+            (userDoc.data() as Map<String, dynamic>)['companyIds'] ?? []);
+
         if (companyIds.isNotEmpty) {
           List<Company> companies = [];
           for (String id in companyIds) {
-            DocumentSnapshot companyDoc = await _firestore.collection('companies').doc(id).get();
+            DocumentSnapshot companyDoc =
+                await _firestore.collection('companies').doc(id).get();
             if (companyDoc.exists) {
               companies.add(Company.fromFirestore(companyDoc));
             }
           }
           _userCompanies = companies;
-          
+
           if (_userCompanies.isNotEmpty) {
             _selectedCompany = _userCompanies.first;
           }
