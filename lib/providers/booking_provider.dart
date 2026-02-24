@@ -1,59 +1,101 @@
+
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 import '../models/booking_event.dart';
-import '../services/booking_service.dart';
-import '../models/client.dart';
-import '../models/place.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
-class BookingProvider extends ChangeNotifier {
-  final BookingService _bookingService;
-
+class BookingProvider with ChangeNotifier {
+  bool _loading = false;
   List<BookingEvent> _events = [];
-  List<Client> _clients = [];
-  List<Place> _places = [];
-  bool _isLoading = false;
-
+  DateTime _selectedDate = DateTime.now();
+  DateTime _currentDate = DateTime.now();
+  String _searchQuery = '';
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+  String? _companyId;
+  
+  bool get loading => _loading;
   List<BookingEvent> get events => _events;
-  List<Client> get clients => _clients;
-  List<Place> get places => _places;
-  bool get isLoading => _isLoading;
+  DateTime get selectedDate => _selectedDate;
+  DateTime get currentDate => _currentDate;
+  String get searchQuery => _searchQuery;
 
-  BookingProvider(String companyId) : _bookingService = BookingService(companyId) {
-    _fetchData();
+  List<BookingEvent> get filteredEvents {
+    if (_searchQuery.isEmpty) {
+      return _events;
+    }
+    return _events
+        .where((event) =>
+            event.title.toLowerCase().contains(_searchQuery.toLowerCase()) ||
+            event.customerName.toLowerCase().contains(_searchQuery.toLowerCase()) ||
+            (event.place?.toLowerCase().contains(_searchQuery.toLowerCase()) ?? false))
+        .toList();
   }
 
-  void _fetchData() {
-    _isLoading = true;
+  void updateCompanyId(String? companyId) {
+    if (_companyId != companyId) {
+      _companyId = companyId;
+      if (_companyId != null && _companyId!.isNotEmpty) {
+        fetchEvents(_companyId!);
+      } else {
+        _events = [];
+        _loading = false;
+        notifyListeners();
+      }
+    }
+  }
+
+  List<BookingEvent> get selectedDateEvents =>
+      _events.where((event) => isSameDay(event.startDate, _selectedDate)).toList();
+
+  void selectDate(DateTime date) {
+    _selectedDate = date;
     notifyListeners();
+  }
 
-    _bookingService.getBookingEvents().listen((events) {
-      _events = events;
-      notifyListeners();
-    });
-
-    _bookingService.getClients().listen((clients) {
-      _clients = clients;
-      notifyListeners();
-    });
-
-    _bookingService.getPlaces().listen((places) {
-      _places = places;
-      notifyListeners();
-    });
-
-    _isLoading = false;
+  void setCurrentDate(DateTime date) {
+    _currentDate = date;
     notifyListeners();
   }
 
-  Future<void> addEvent(BookingEvent event) async {
-    await _bookingService.addBookingEvent(event);
+  void setSearchQuery(String query) {
+    _searchQuery = query;
+    notifyListeners();
   }
 
-  Future<void> updateEvent(BookingEvent event) async {
-    await _bookingService.updateBookingEvent(event);
+  Future<void> fetchEvents(String companyId) async {
+    if(companyId.isEmpty) {
+      _events = [];
+      _loading = false;
+      notifyListeners();
+      return;
+    }
+    _loading = true;
+    notifyListeners();
+    try {
+      _firestore
+          .collection('companies')
+          .doc(companyId)
+          .collection('bookingEvents')
+          .orderBy('startDate', descending: true)
+          .snapshots()
+          .listen((snapshot) {
+        _events = snapshot.docs
+            .map((doc) => BookingEvent.fromFirestore(doc.data(), doc.id))
+            .toList();
+        _loading = false;
+        notifyListeners();
+      }, onError: (error) {
+         _loading = false;
+         print("Error fetching events: $error");
+         notifyListeners();
+      });
+    } catch (e) {
+      _loading = false;
+      print("Error fetching events: $e");
+      notifyListeners();
+    }
   }
 
-  Future<void> deleteEvent(String eventId) async {
-    await _bookingService.deleteBookingEvent(eventId);
+  bool isSameDay(DateTime a, DateTime b) {
+    return a.year == b.year && a.month == b.month && a.day == b.day;
   }
 }

@@ -8,6 +8,8 @@ class Client {
   final List<String>? phones;
   final String? address;
   final double balance;
+  final String? driverLicenseId;
+  final String? contactInfo;
 
   Client({
     required this.id,
@@ -17,6 +19,8 @@ class Client {
     this.phones,
     this.address,
     this.balance = 0,
+    this.driverLicenseId,
+    this.contactInfo,
   });
 
   factory Client.fromFirestore(DocumentSnapshot doc) {
@@ -29,6 +33,8 @@ class Client {
       phones: data['phones'] != null ? List<String>.from(data['phones']) : null,
       address: data['address'],
       balance: (data['balance'] ?? 0).toDouble(),
+      driverLicenseId: data['driverLicenseId'],
+      contactInfo: data['contactInfo'],
     );
   }
 
@@ -40,6 +46,8 @@ class Client {
       'phones': phones,
       'address': address,
       'balance': balance,
+      'driverLicenseId': driverLicenseId,
+      'contactInfo': contactInfo,
     };
   }
 }

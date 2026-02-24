@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+
 import '../../models/booking_event.dart';
-import 'add_edit_booking_screen.dart';
+import '../booking/add_event_dialog.dart';
 
 class EventDetailsScreen extends StatelessWidget {
   final BookingEvent event;
@@ -20,7 +21,7 @@ class EventDetailsScreen extends StatelessWidget {
               Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (context) => AddEditBookingScreen(event: event),
+                  builder: (context) => AddEditBookingDialog(event: event),
                 ),
               );
             },
@@ -39,7 +40,9 @@ class EventDetailsScreen extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             _buildDetailRow('Customer:', event.customerName),
-            _buildDetailRow('Dates:', '${DateFormat.yMd().format(event.startDate)} - ${DateFormat.yMd().format(event.endDate)}'),
+            _buildDetailRow(
+                'Dates:',
+                '${DateFormat.yMd().format(event.startDate)} - ${DateFormat.yMd().format(event.endDate)}'),
             _buildDetailRow('Status:', event.status.name),
             _buildDetailRow('Amount:', '${event.amount} ${event.currency}'),
             _buildDetailRow('Balance:', '${event.balance} ${event.currency}'),

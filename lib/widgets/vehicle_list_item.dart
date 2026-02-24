@@ -13,6 +13,13 @@ class VehicleListItem extends StatelessWidget {
     return Card(
       margin: const EdgeInsets.all(8.0),
       child: ListTile(
+        leading: SizedBox(
+          width: 80,
+          height: 80,
+          child: vehicle.imageUrl != null
+              ? Image.network(vehicle.imageUrl!, fit: BoxFit.cover, errorBuilder: (context, error, stackTrace) => const Icon(Icons.car_rental),)
+              : const Icon(Icons.directions_car, size: 40),
+        ),
         title: Text('${vehicle.make} ${vehicle.model}'),
         subtitle: Text('Year: ${vehicle.year} | Status: ${vehicle.status}'),
         trailing: vehicle.status == 'Available'

@@ -55,9 +55,7 @@ class _CreateAgreementScreenState extends State<CreateAgreementScreen> {
             .doc(widget.vehicle.id)
             .update({'status': 'Rented'});
 
-        if (mounted) {
-          Navigator.pop(context);
-        }
+        Navigator.pop(context);
       } catch (e) {
         setState(() {
           _isLoading = false;
@@ -134,7 +132,7 @@ class _CreateAgreementScreenState extends State<CreateAgreementScreen> {
       builder: (context, snapshot) {
         if (!snapshot.hasData) return const CircularProgressIndicator();
         final clients = snapshot.data!.docs.map((doc) {
-          return Client.fromFirestore(doc.data() as Map<String, dynamic>, doc.id);
+          return Client.fromFirestore(doc);
         }).toList();
 
         return DropdownButtonFormField<Client>(

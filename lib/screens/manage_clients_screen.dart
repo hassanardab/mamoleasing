@@ -27,7 +27,7 @@ class _ManageClientsScreenState extends State<ManageClientsScreen> {
       });
 
       final appProvider = Provider.of<AppProvider>(context, listen: false);
-      final companyId = appProvider.selectedCompany?.id;
+      final companyId = appProvider.selectedModuleId;
 
       if (companyId == null) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -70,7 +70,7 @@ class _ManageClientsScreenState extends State<ManageClientsScreen> {
   @override
   Widget build(BuildContext context) {
     final appProvider = Provider.of<AppProvider>(context);
-    final companyId = appProvider.selectedCompany?.id;
+    final companyId = appProvider.selectedModuleId;
 
     return Scaffold(
       appBar: AppBar(title: const Text('Manage Clients')),
@@ -124,7 +124,7 @@ class _ManageClientsScreenState extends State<ManageClientsScreen> {
                   return const Center(child: Text('No clients found.'));
                 }
                 final clients = snapshot.data!.docs.map((doc) {
-                  return Client.fromFirestore(doc.data() as Map<String, dynamic>, doc.id);
+                  return Client.fromFirestore(doc);
                 }).toList();
 
                 return ListView.builder(
@@ -133,7 +133,7 @@ class _ManageClientsScreenState extends State<ManageClientsScreen> {
                     final client = clients[index];
                     return ListTile(
                       title: Text(client.name),
-                      subtitle: Text(client.driverLicenseId),
+                      subtitle: Text(client.driverLicenseId ?? 'N/A'),
                     );
                   },
                 );

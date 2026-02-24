@@ -5,6 +5,7 @@ class Vehicle {
   final int year;
   final String? description;
   final String status;
+  final String? imageUrl;
   final List<String> preRentalImages;
 
   Vehicle({
@@ -14,6 +15,7 @@ class Vehicle {
     required this.year,
     this.description,
     required this.status,
+    this.imageUrl,
     this.preRentalImages = const [],
   });
 
@@ -25,6 +27,7 @@ class Vehicle {
       year: data['year'] ?? 0,
       description: data['description'],
       status: data['status'] ?? 'Available',
+      imageUrl: data['imageUrl'],
       preRentalImages: List<String>.from(data['preRentalImages'] ?? []),
     );
   }
@@ -36,6 +39,7 @@ class Vehicle {
       'year': year,
       'description': description,
       'status': status,
+      'imageUrl': imageUrl,
       'preRentalImages': preRentalImages,
     };
   }

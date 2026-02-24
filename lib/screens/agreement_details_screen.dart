@@ -1,9 +1,10 @@
-import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+
 import '../models/agreement.dart';
-import '../models/vehicle.dart';
 import '../models/client.dart';
+import '../models/vehicle.dart';
 
 class AgreementDetailsScreen extends StatefulWidget {
   final Agreement agreement;
@@ -34,15 +35,18 @@ class _AgreementDetailsScreenState extends State<AgreementDetailsScreen> {
         .get();
 
     return {
-      'vehicle': Vehicle.fromFirestore(vehicleDoc.data()!, vehicleDoc.id),
-      'client': Client.fromFirestore(clientDoc.data()!, clientDoc.id),
+      'vehicle': Vehicle.fromFirestore(
+          vehicleDoc.data() as Map<String, dynamic>, vehicleDoc.id),
+      'client': Client.fromFirestore(
+          clientDoc.data() as Map<String, dynamic>, clientDoc.id),
     };
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text('Agreement #${widget.agreement.id.substring(0, 5)}...')),
+      appBar:
+          AppBar(title: Text('Agreement #${widget.agreement.id.substring(0, 5)}...')),
       body: FutureBuilder<Map<String, dynamic>>(
         future: _dataFuture,
         builder: (context, snapshot) {
@@ -72,17 +76,23 @@ class _AgreementDetailsScreenState extends State<AgreementDetailsScreen> {
                   const Divider(height: 30),
                   _buildSectionTitle('Client Details'),
                   _buildDetailItem('Name', client.name),
-                  _buildDetailItem('License ID', client.driverLicenseId),
-                  _buildDetailItem('Contact', client.contactInfo),
+                  _buildDetailItem(
+                      'License ID', client.driverLicenseId ?? 'N/A'),
+                  _buildDetailItem('Contact', client.contactInfo ?? 'N/A'),
                   const Divider(height: 30),
                   _buildSectionTitle('Agreement Details'),
                   _buildDetailItem('Status', widget.agreement.status),
-                  _buildDetailItem('Start Date', DateFormat.yMd().format(widget.agreement.startDate)),
-                  _buildDetailItem('End Date', DateFormat.yMd().format(widget.agreement.endDate)),
+                  _buildDetailItem('Start Date',
+                      DateFormat.yMd().format(widget.agreement.startDate)),
+                  _buildDetailItem('End Date',
+                      DateFormat.yMd().format(widget.agreement.endDate)),
                   _buildDetailItem('Terms', widget.agreement.terms),
-                  _buildDetailItem('Insurance', widget.agreement.insuranceDetails),
-                  _buildDetailItem('Initial Mileage', widget.agreement.initialMileage.toString()),
-                  _buildDetailItem('Initial Fuel', '${widget.agreement.initialFuelLevel}%'),
+                  _buildDetailItem(
+                      'Insurance', widget.agreement.insuranceDetails),
+                  _buildDetailItem('Initial Mileage',
+                      widget.agreement.initialMileage.toString()),
+                  _buildDetailItem('Initial Fuel',
+                      '${widget.agreement.initialFuelLevel}%'),
                 ],
               ),
             ),

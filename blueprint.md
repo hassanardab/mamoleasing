@@ -6,6 +6,7 @@ This is a Flutter application for managing a vehicle rental business. It allows 
 *   **Authentication**: Users can sign up and log in using Firebase Authentication.
 *   **Multi-Company Support**: The application supports multiple companies, with each user having access to a specific set of companies.
 *   **Vehicle Inventory Management**: Users can add, view, and manage their vehicle inventory.
+*   **Vehicle Image Management**: Users can upload an image for each vehicle, which is displayed in the vehicle list.
 *   **Client Management**: Users can add and view their clients.
 *   **Rental Agreements**: Users can view their rental agreements.
 *   **Booking Management**: 
@@ -21,7 +22,7 @@ This is a Flutter application for managing a vehicle rental business. It allows 
     *   `AppProvider`: Manages authentication, user profile, and selected company.
     *   `BookingProvider`: Manages booking events, statistics, and financial data for the active company.
 *   **Routing**: The application uses the `go_router` package for routing.
-*   **Backend**: Firebase (Authentication, Cloud Firestore).
+*   **Backend**: Firebase (Authentication, Cloud Firestore, Firebase Storage).
 
 ## **Style & Design**
 *   **Theme**: Material 3 with a custom color scheme derived from a seed color.
@@ -29,17 +30,19 @@ This is a Flutter application for managing a vehicle rental business. It allows 
 *   **Typography**: Google Fonts (Roboto/Open Sans).
 *   **Responsiveness**: Layout adapts to screen size using `LayoutBuilder` and `MediaQuery`.
 
-## **Current Change Plan: Booking Module Implementation**
-1.  **Models**: Created `BookingEvent` model. Need to ensure alignment with Firestore structure used in the React code.
-2.  **Provider**: Implement `BookingProvider` to fetch events and journal entries (for financial stats).
-3.  **Dashboard Screen**: Rebuild `lib/screens/bookings_screen.dart` with stats, calendar, and lists.
-4.  **Components**:
-    *   `StatsCard`: For revenue and expected payments.
-    *   `BookingCalendar`: Using `table_calendar`.
-    *   `BookingListItem`: For the list view.
-5.  **Dialogs**:
-    *   `AddBookingDialog`: Form to create/edit bookings.
-    *   `BookingDetailsDialog`: View details, manage payments, and actions (delete/postpone).
+## **Recent Changes**
+
+### Vehicle Image Feature
+*   **Dependencies**: Added `image_picker` for selecting images from the device gallery and `firebase_storage` for uploading and storing them.
+*   **Add Vehicle Screen**: Implemented functionality to allow users to pick an image when adding a new vehicle. The selected image is displayed on the screen before saving.
+*   **Image Upload**: Upon saving, the selected image is uploaded to Firebase Storage under a structured path: `companies/{companyId}/vehicles/{vehicleId}/images/{fileName}`.
+*   **Data Model**: The `Vehicle` model has been updated to include an `imageUrl` field, which stores the public download URL of the uploaded image.
+*   **Vehicle List Display**: The main vehicle inventory list has been updated to display a thumbnail of each vehicle's image. A placeholder icon is shown if a vehicle has no image.
+
+### Code Health and Bug Fixes
+*   **Deprecation Fixes**: Resolved several deprecation warnings throughout the project. Notably, `withOpacity` has been replaced with the more efficient `withAlpha` for color adjustments.
+*   **Enum Handling**: Corrected the logic in the booking section for handling `BookingStatus` enums, making the status display more robust.
+*   **General Cleanup**: Performed various minor code cleanup tasks to improve readability and maintainability.
 
 ## **File Structure (Updated)**
 

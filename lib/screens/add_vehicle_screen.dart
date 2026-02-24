@@ -1,6 +1,10 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 
 import '../providers/app_provider.dart';
 
@@ -18,6 +22,29 @@ class _AddVehicleScreenState extends State<AddVehicleScreen> {
   int _year = 0;
   bool _isLoading = false;
   final _descriptionController = TextEditingController();
+  XFile? _imageFile;
+
+  Future<void> _pickImage() async {
+    final pickedFile = await ImagePicker().pickImage(source: ImageSource.gallery);
+    setState(() {
+      _imageFile = pickedFile;
+    });
+  }
+
+  Future<String?> _uploadImage(String vehicleId) async {
+    if (_imageFile == null) return null;
+
+    final appProvider = Provider.of<AppProvider>(context, listen: false);
+    final companyId = appProvider.selectedCompany?.id;
+    if (companyId == null) return null;
+
+    final storageRef = FirebaseStorage.instance
+        .ref()
+        .child('companies/$companyId/vehicles/$vehicleId/images/${_imageFile!.name}');
+    final uploadTask = storageRef.putFile(File(_imageFile!.path));
+    final snapshot = await uploadTask.whenComplete(() => {});
+    return await snapshot.ref.getDownloadURL();
+  }
 
   Future<void> _saveVehicle() async {
     if (_formKey.currentState!.validate()) {
@@ -40,16 +67,21 @@ class _AddVehicleScreenState extends State<AddVehicleScreen> {
       }
 
       try {
-        await FirebaseFirestore.instance
+        final newVehicleRef = FirebaseFirestore.instance
             .collection('companies')
             .doc(companyId)
             .collection('vehicles')
-            .add({
+            .doc();
+
+        final imageUrl = await _uploadImage(newVehicleRef.id);
+
+        await newVehicleRef.set({
           'make': _make,
           'model': _model,
           'year': _year,
           'description': _descriptionController.text,
           'status': 'Available',
+          'imageUrl': imageUrl,
           'preRentalImages': [],
         });
 
@@ -67,7 +99,7 @@ class _AddVehicleScreenState extends State<AddVehicleScreen> {
     }
   }
 
- @override
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const Text('Add Vehicle')),
@@ -80,6 +112,14 @@ class _AddVehicleScreenState extends State<AddVehicleScreen> {
               child: SingleChildScrollView(
                 child: Column(
                   children: [
+                    _imageFile == null
+                        ? const Text('No image selected.')
+                        : Image.file(File(_imageFile!.path), height: 200),
+                    TextButton.icon(
+                      icon: const Icon(Icons.image),
+                      label: const Text('Select Image'),
+                      onPressed: _pickImage,
+                    ),
                     TextFormField(
                       decoration: const InputDecoration(labelText: 'Make'),
                       validator: (value) {
@@ -140,7 +180,7 @@ class _AddVehicleScreenState extends State<AddVehicleScreen> {
           ),
           if (_isLoading)
             Container(
-              color: Colors.black.withOpacity(0.5),
+              color: Colors.black.withAlpha(128),
               child: const Center(child: CircularProgressIndicator()),
             ),
         ],
