@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
 import '../../models/booking_event.dart';
-import '../booking/add_event_dialog.dart';
 
 class EventDetailsScreen extends StatelessWidget {
   final BookingEvent event;
